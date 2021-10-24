@@ -7,6 +7,21 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 2021.10.07 - 2021.11.04
 
 ![](example.png)
+# Info par hakatonu
+
+[Atvērto ģeotelpisko datu hakatons skolēniem 2021](https://www.lata.org.lv/skolas-2021)
+
+## Mērķis
+
+> Veidot sabiedrības, tostarp jauniešu, izpratni par ģeotelpisko atvērto datu nozīmīgumu inovatīvu produktu un pakalpojumu izstrādē un veicināt ģeotelpisko datu atvēršanu Latvijā, kā arī izglītot jauniešus par atvērto datu tehnoloģiju izmantošanu.
+
+## Uzdevums
+
+> Radoša, inovatīva un praktiska brīvo un atvērto datu izmantošana, radot sabiedrībai noderīgu produktu vai pakalpojumu, iesaistot tehnoloģijas.
+
+## Rezultāts
+
+> Hakatona dalībnieku sasniedzamais rezultāts ir radīt inovatīvu lietotni, kas risina sabiedrībai būtisku problēmu, izmantojot atvērtos ģeotelpiskos datus.
 
 ## Vērtēšanas kritēriji
 
