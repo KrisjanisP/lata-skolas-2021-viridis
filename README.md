@@ -6,6 +6,8 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 
 2021.10.07 - 2021.11.04
 
+![](example.png)
+
 ## Vērtēšanas kritēriji
 
 1. Atvērto ģeotelpisko datu inovatīvs pielietojums.
