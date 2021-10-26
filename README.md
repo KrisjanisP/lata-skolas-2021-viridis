@@ -1,5 +1,4 @@
 ![logo](logo.png)
-#
 
 Krišjānis Petručeņa / komanda "One Lone Coder" 
 
