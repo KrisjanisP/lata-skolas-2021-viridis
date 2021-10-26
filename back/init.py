@@ -2,12 +2,17 @@ import re
 import io
 import requests
 from pyproj import Proj, transform
+from tqdm import tqdm
 import config
 from models.tile import TKS93MapTile
-from tqdm import tqdm
 
 LKS92 = Proj('epsg:3059')
 WGS84 = Proj('epsg:3857')
+
+def get_req_headers():
+    user_agent_header = 'PostmanRuntime/7.28.4'
+    host_header = 's3.storage.pub.lvdc.gov.lv'
+    return {'User-Agent': user_agent_header, 'Host':host_header}
 
 def get_coordinates(tfw_url):
     """
@@ -15,7 +20,9 @@ def get_coordinates(tfw_url):
     Read x, y coordinates from the file.\n
     Transform these coordinates into epsg:3857.
     """
-    tfw = requests.get(tfw_url, headers={'User-Agent': 'PostmanRuntime/7.28.4', 'Host':'s3.storage.pub.lvdc.gov.lv', 'Postman-Token': '34dfa909-0656-45e1-b11c-717cc67960ec'}).content.decode("utf-8")
+
+    tfw = requests.get(tfw_url, headers=get_req_headers()).content.decode("utf-8")
+
     buf = io.StringIO(tfw)
     width = float(buf.readline().strip())*10000
     buf.readline() # empty rotation
@@ -33,37 +40,34 @@ def get_coordinates(tfw_url):
     brcx, brcy = transform(LKS92,WGS84, brcx, brcy)
     return ulcx, ulcy, urcx, urcy, brcx, brcy, blcx, blcy
 
-def defaultfill(db):
+def process_rgb_urls(db):
+    tile_count = config.TILE_COUNT
     # download rgb aka visible light map urls file
-    rgbURLs = requests.get(config.rgbURL).content.decode("utf-8")
+    rgb_urls = requests.get(config.RGB_URL).content.decode("utf-8")
 
     print('Creating tiles from rgbURLsFile.')
-
-    tile_count = 10775
-    completed = False
-
-    with io.StringIO(rgbURLs) as file:
+    with io.StringIO(rgb_urls) as file:
         for i in tqdm(range(tile_count)):
             if completed:
                 continue
-            tfwURL = file.readline().strip()
-            rgbURL = file.readline().strip()
-            if not tfwURL or not rgbURL:
+            tfw_url = file.readline().strip()
+            rgb_url = file.readline().strip()
+            if not tfw_url or not rgb_url:
                 break
 
             # skip weird links
-            if re.search('.xml', tfwURL) is not None:
-                tfwURL = rgbURL
-                rgbURL = file.readline()
+            if re.search('.xml', tfw_url) is not None:
+                tfw_url = rgb_url
+                rgb_url = file.readline()
 
             # last links are broken
-            if re.search('.tif', tfwURL) is not None:
+            if re.search('.tif', tfw_url) is not None:
                 break
 
-            temp = re.search('v6/(.+?).tfw', tfwURL)
+            temp = re.search('v6/(.+?).tfw', tfw_url)
             if temp is None:
-                print(tfwURL)
-                
+                print(tfw_url)
+
             part1 = re.search('/(.+?)-', temp.group(1)).group(1)
             part2 = re.search('-(.+?)$', temp.group(1)).group(1)
 
@@ -79,61 +83,62 @@ def defaultfill(db):
                     continue
 
             #ulc, urc, blc, brc = getCoordinates(tfwURL)
-            
-            ulcx, ulcy, urcx, urcy, brcx, brcy, blcx, blcy = get_coordinates(tfwURL)
+
+            ulcx, ulcy, urcx, urcy, brcx, brcy, blcx, blcy = get_coordinates(tfw_url)
 
             # create a new tile
-            newTile = TKS93MapTile(
-                name=tile_name, tfwURL=tfwURL, rgbURL=rgbURL,
+            new_tile = TKS93MapTile(
+                name=tile_name, tfwURL=tfw_url, rgbURL=rgb_url,
                 ulcx=ulcx,ulcy=ulcy,urcx=urcx,urcy=urcy,
                 blcx=blcx,blcy=blcy,brcx=brcx,brcy=brcy)
 
             # if it exists, update it
             tile = TKS93MapTile.query.filter_by(name=tile_name).first()
             if tile is not None:
-                tile.name = newTile.name
-                tile.tfwURL = newTile.tfwURL
-                tile.rgbURL = newTile.rgbURL
-                tile.ulcx = newTile.ulcx
-                tile.ulcy = newTile.ulcy
-                tile.urcx = newTile.urcx
-                tile.urcy = newTile.urcy
-                tile.blcx = newTile.blcx
-                tile.blcy = newTile.blcy
-                tile.brcx = newTile.brcx
-                tile.brcy = newTile.brcy
+                tile.name = new_tile.name
+                tile.tfwURL = new_tile.tfwURL
+                tile.rgbURL = new_tile.rgbURL
+                tile.ulcx = new_tile.ulcx
+                tile.ulcy = new_tile.ulcy
+                tile.urcx = new_tile.urcx
+                tile.urcy = new_tile.urcy
+                tile.blcx = new_tile.blcx
+                tile.blcy = new_tile.blcy
+                tile.brcx = new_tile.brcx
+                tile.brcy = new_tile.brcy
             else:
-                db.session.add(newTile)
+                db.session.add(new_tile)
 
     db.session.commit()
 
-    # download rgb aka visible light map urls file
-    cirURLs = requests.get(config.cirURL).content.decode("utf-8")
+def process_cir_urls(db):
+    tile_count = config.TILE_COUNT
+    cir_urls = requests.get(config.CIR_URL).content.decode("utf-8")
 
     print('Updating tiles from cirURLsFile.')
-
-    with io.StringIO(cirURLs) as file:
+    completed = False
+    with io.StringIO(cir_urls) as file:
         for i in tqdm(range(tile_count)):
-            if completed == True:
+            if completed:
                 continue
-            tfwURL = file.readline().strip()
-            cirURL = file.readline().strip()
-            if not tfwURL or not cirURL:
+            tfw_url = file.readline().strip()
+            cir_url = file.readline().strip()
+            if not tfw_url or not cir_url:
                 break
 
             # skip weird links
-            if re.search('.xml', tfwURL) is not None:
-                tfwURL = cirURL
-                cirURL = file.readline()
+            if re.search('.xml', tfw_url) is not None:
+                tfw_url = cir_url
+                cir_url = file.readline()
 
             # last links are broken
-            if re.search('.tif', tfwURL) is not None:
+            if re.search('.tif', tfw_url) is not None:
                 break
 
-            temp = re.search('v6/(.+?).tfw', tfwURL)
+            temp = re.search('v6/(.+?).tfw', tfw_url)
             if temp is None:
-                print(tfwURL)
-                
+                print(tfw_url)
+
             part1 = re.search('/(.+?)-', temp.group(1)).group(1)
             part2 = re.search('-(.+?)$', temp.group(1)).group(1)
 
@@ -141,6 +146,10 @@ def defaultfill(db):
 
             # if it exists, update it
             tile = TKS93MapTile.query.filter_by(name=tile_name).first()
-            tile.cirURL = cirURL
+            tile.cirURL = cir_url
 
     db.session.commit()
+
+def defaultfill(db):
+    process_rgb_urls(db)
+    process_cir_urls(db)

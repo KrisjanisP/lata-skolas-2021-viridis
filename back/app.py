@@ -1,11 +1,13 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask
 from flask_marshmallow import Marshmallow
 from init import defaultfill
 from models.tile import TKS93MapTile
 from geojson import Point, Feature, FeatureCollection, Polygon
 from flask_cors import CORS, cross_origin
 from flask_headers import headers
+from shared.db import db
+
 # init app
 app = Flask(__name__)
 
@@ -19,7 +21,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'db.s
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # init db
-from shared.db import db
 db.init_app(app)
 with app.app_context():
     db.create_all()
@@ -47,8 +48,11 @@ def get_tiles():
     for tile in tiles:
         if tile.ulcx is None:
             continue
-        point = Point((tile.ulcx, tile.ulcy))
-        polygon = Polygon([[(tile.ulcx, tile.ulcy),(tile.urcx, tile.urcy),(tile.brcx, tile.brcy),(tile.blcx, tile.blcy),(tile.ulcx, tile.ulcy)]])
+        ulc = (tile.ulcx, tile.ulcy)
+        urc = (tile.urcx, tile.urcy)
+        brc = (tile.brcx, tile.brcy)
+        blc = (tile.blcx, tile.blcy)
+        polygon = Polygon([[ulc, urc, brc, blc, ulc]])
         feature = Feature(geometry=polygon, id=tile.name)
         features.append(feature)
     return FeatureCollection(features)
