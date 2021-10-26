@@ -1,4 +1,4 @@
-![logo](front/assets/logo.png)
+![logo](assets/logo.png)
 
 Krišjānis Petručeņa / komanda "One Lone Coder" 
 
@@ -6,7 +6,7 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 
 2021.10.07 - 2021.11.04
 
-![example](example.png)
+![example](assets/example.png)
 # Info par hakatonu
 
 [Atvērto ģeotelpisko datu hakatons skolēniem 2021](https://www.lata.org.lv/skolas-2021)
