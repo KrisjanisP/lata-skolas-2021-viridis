@@ -1,21 +1,21 @@
-import os
-import sys
 import re
-import requests
-import config
-import shutil
 import io
-import json
-from models.tile import TKS93MapTile
-from time import sleep
-from tqdm import tqdm
+import requests
 from pyproj import Proj, transform
+import config
+from models.tile import TKS93MapTile
+from tqdm import tqdm
 
 LKS92 = Proj('epsg:3059')
 WGS84 = Proj('epsg:3857')
 
-def getCoordinates(tfwURL):
-    tfw = requests.get(tfwURL, headers={'User-Agent': 'PostmanRuntime/7.28.4', 'Host':'s3.storage.pub.lvdc.gov.lv', 'Postman-Token': '34dfa909-0656-45e1-b11c-717cc67960ec'}).content.decode("utf-8")
+def get_coordinates(tfw_url):
+    """
+    Download .tfw file.\n
+    Read x, y coordinates from the file.\n
+    Transform these coordinates into epsg:3857.
+    """
+    tfw = requests.get(tfw_url, headers={'User-Agent': 'PostmanRuntime/7.28.4', 'Host':'s3.storage.pub.lvdc.gov.lv', 'Postman-Token': '34dfa909-0656-45e1-b11c-717cc67960ec'}).content.decode("utf-8")
     buf = io.StringIO(tfw)
     width = float(buf.readline().strip())*10000
     buf.readline() # empty rotation
@@ -40,9 +40,12 @@ def defaultfill(db):
     print('Creating tiles from rgbURLsFile.')
 
     tile_count = 10775
-    
+    completed = False
+
     with io.StringIO(rgbURLs) as file:
         for i in tqdm(range(tile_count)):
+            if completed:
+                continue
             tfwURL = file.readline().strip()
             rgbURL = file.readline().strip()
             if not tfwURL or not rgbURL:
@@ -72,11 +75,12 @@ def defaultfill(db):
                 if (tile.brcy is not None and
                     tile.tfwURL is not None and
                     tile.rgbURL is not None):
+                    completed = True
                     continue
 
             #ulc, urc, blc, brc = getCoordinates(tfwURL)
             
-            ulcx, ulcy, urcx, urcy, brcx, brcy, blcx, blcy = getCoordinates(tfwURL)
+            ulcx, ulcy, urcx, urcy, brcx, brcy, blcx, blcy = get_coordinates(tfwURL)
 
             # create a new tile
             newTile = TKS93MapTile(
@@ -110,6 +114,8 @@ def defaultfill(db):
 
     with io.StringIO(cirURLs) as file:
         for i in tqdm(range(tile_count)):
+            if completed == True:
+                continue
             tfwURL = file.readline().strip()
             cirURL = file.readline().strip()
             if not tfwURL or not cirURL:

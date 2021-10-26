@@ -39,16 +39,9 @@ tiles_schema = TilesSchema(many=True)
 
 # Get all tiles
 @app.route('/tks93tiles', methods=['GET'])
-def get_tks93tiles():
-    tiles = TKS93MapTile.query.get(10)
-    print(tiles)
-    return 'hello'
-
-# Get all tiles
-@app.route('/', methods=['GET'])
 @cross_origin()
 @headers({'content-type':'application/geo+json'})
-def get():
+def get_tiles():
     tiles = TKS93MapTile.query.all()
     features = []
     for tile in tiles:
@@ -58,7 +51,6 @@ def get():
         polygon = Polygon([[(tile.ulcx, tile.ulcy),(tile.urcx, tile.urcy),(tile.brcx, tile.brcy),(tile.blcx, tile.blcy),(tile.ulcx, tile.ulcy)]])
         feature = Feature(geometry=polygon, id=tile.name)
         features.append(feature)
-
     return FeatureCollection(features)
 
 app.run()
