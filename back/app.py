@@ -57,4 +57,9 @@ def get_tiles():
         features.append(feature)
     return FeatureCollection(features)
 
+@app.route('/tks93tiles', methods=['POST'])
+@cross_origin()
+def post_tiles():
+    return 'posted'
+    
 app.run()

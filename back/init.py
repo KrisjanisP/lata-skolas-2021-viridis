@@ -46,6 +46,7 @@ def process_rgb_urls(db):
     rgb_urls = requests.get(config.RGB_URL).content.decode("utf-8")
 
     print('Creating tiles from rgbURLsFile.')
+    completed = False
     with io.StringIO(rgb_urls) as file:
         for i in tqdm(range(tile_count)):
             if completed:
@@ -146,6 +147,11 @@ def process_cir_urls(db):
 
             # if it exists, update it
             tile = TKS93MapTile.query.filter_by(name=tile_name).first()
+            if tile is not None:
+                if tile.cirURL is not None:
+                    completed = True
+                    continue
+            
             tile.cirURL = cir_url
 
     db.session.commit()

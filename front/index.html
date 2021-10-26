@@ -1,15 +1,63 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>ViDiRiS</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-    <div id="map"></div>
-        <script src="dist/main.js"></script>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>ViDiRiS</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <div class="position-fixed w-100 h-100 d-flex flex-column">
+      <nav class="container d-flex justify-content-between py-2">
+        <a
+          href="/"
+          class="d-block d-sm-none align-self-center fs-4 text-decoration-none"
+        >
+          <i class="fa fa-fw fa-home text-black"></i>
+          <span style="color: rgb(120, 160, 71)">ViDiRiS</span>
+        </a>
+        <a href="/">
+          <img src="assets/logo.png" height="40px" class="d-none d-sm-block" />
+        </a>
+        <a href="#" class="align-self-center fs-4 text-decoration-none">
+          <span class="profile-text">PROFiLS</span>
+          <i class="fa fa-fw fa-user text-black"></i>
+        </a>
+      </nav>
+      <main class="container h-100 w-100 pb-4 d-flex flex-column">
+        <div id="map" class="w-100 flex-grow-1"></div>
+        <div
+          style="height: 80px"
+          class="
+            container
+            bg-light
+            mt-3
+            d-flex
+            align-items-center
+            justify-content-between
+            px-5
+          "
+        >
+          <div>
+            <b>Atlasītie lauki:</b>
+            <span id="selected-fields"></span>
+          </div>
+          <button
+            type="button"
+            id="fields-submit-btn"
+            class="btn btn-success px-4 ml-5 disabled"
+          >
+            Turpināt
+          </button>
+        </div>
+      </main>
+    </div>
+    <script src="dist/main.js"></script>
+  </body>
 </html>
