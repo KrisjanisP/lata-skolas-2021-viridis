@@ -39,7 +39,7 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
-	router.Run("127.0.0.1:7080")
+	router.Run(":80")
 }
 
 func serveHTML(c *gin.Context) {
