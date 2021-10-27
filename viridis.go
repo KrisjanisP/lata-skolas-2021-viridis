@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/KrisjanisP/viridis/models"
+	"github.com/KrisjanisP/viridis/utils"
 	process "github.com/KrisjanisP/viridis/utils"
 
 	"github.com/gin-contrib/cors"
@@ -18,7 +18,6 @@ import (
 var db *sql.DB
 
 func main() {
-
 	os.Mkdir("./data/images", 0755)
 
 	var err error
@@ -27,10 +26,14 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	utils.InitGeoJSON(db)
+
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", serveHTML)
+	router.GET("/", serveMapHTML)
+	router.GET("/profile", serveProfileHTML)
 	router.Static("/assets", "./assets") // serve assets like images
 	router.Static("/dist", "./dist")     // serve javascript, css
 	router.GET("/tiles", getTiles)
@@ -39,49 +42,48 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
-	router.Run(":80")
+	router.Run(":8080")
 }
 
-func serveHTML(c *gin.Context) {
+func serveMapHTML(c *gin.Context) {
 	c.HTML(
 		http.StatusOK,
-		"index.html",
+		"map.html",
+		gin.H{},
+	)
+}
+
+type FileRow struct {
+	TileName string
+	FileName string
+	DownLink string
+	FileType string
+	ReqDate  string
+}
+
+func serveProfileHTML(c *gin.Context) {
+	payload := []FileRow{
+		{TileName: "2434-14_4",
+			FileName: "4423-43_2_rgb.jpeg",
+			FileType: "Krāsainā ortofotokarte",
+			ReqDate:  "27.10.2021",
+			DownLink: "asdfasdfa"},
+		{TileName: "2434-14_4",
+			FileName: "4423-43_2_rgb.jpeg",
+			FileType: "Krāsainā ortofotokarte",
+			ReqDate:  "27.10.2021",
+			DownLink: "asdfasdfa"},
+	}
+	c.HTML(
+		http.StatusOK,
+		"profile.html",
 		gin.H{
-			"title": "Home Page",
-		},
+			"payload": payload},
 	)
 }
 
 func getTiles(c *gin.Context) {
 	c.File("./data/tiles.geojson")
-}
-
-func getTileUrlsRecord(tile_name string) (models.Tile, error) {
-	var result models.Tile
-	rows, err := db.Query("SELECT * FROM tile_urls WHERE name = ?", tile_name)
-	if err != nil {
-		log.Fatal(err)
-		return result, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		id := result.Id
-		fmt.Println(id)
-		err = rows.Scan(&result.Id, &result.Name, &result.TfwURL, &result.RgbURL, &result.CirURL)
-		if err != nil {
-			log.Fatal(err)
-			return result, err
-		}
-	}
-
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-		return result, err
-	}
-
-	return result, nil
 }
 
 func postTiles(c *gin.Context) {
@@ -101,7 +103,15 @@ func postTiles(c *gin.Context) {
 	fmt.Println(tile_names)
 
 	for _, tile_name := range tile_names {
-		tile, err := getTileUrlsRecord(tile_name)
+		if tile_name == "" {
+			c.AbortWithStatus(400)
+			return
+		}
+		tile, err := utils.GetTileUrlsRecord(db, tile_name)
+		if tile.Name == "" {
+			c.AbortWithStatus(400)
+			return
+		}
 		if err != nil {
 			c.AbortWithStatus(500)
 			return

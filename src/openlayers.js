@@ -39,7 +39,7 @@ export function initMap() {
 let selected = [];
 
 export function getSelectedFields(){
-  let selectedFields = selected.map((data) => data.id_);
+  let selectedFields = selected.map((data) => data.values_.id);
   return selectedFields;
 }
 

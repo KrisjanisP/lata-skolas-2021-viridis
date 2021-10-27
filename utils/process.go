@@ -2,11 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"image/jpeg"
+	"io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/KrisjanisP/viridis/models"
+	"golang.org/x/image/tiff"
 )
 
 func fileExists(path string) bool {
@@ -147,4 +150,15 @@ func ProcessTile(tile models.Tile) {
 		fmt.Println("Finished overlay for " + tile.Name)
 	}
 	fmt.Println("Finished processing " + tile.Name)
+}
+
+func ConvertTiffToJPEG(tiff_r io.Reader, jpeg_w io.Writer) {
+	//opening files
+	img, err := tiff.Decode(tiff_r)
+
+	if err != nil {
+		fmt.Println("Cant decode file")
+	}
+
+	jpeg.Encode(jpeg_w, img, &jpeg.Options{Quality: 75})
 }
