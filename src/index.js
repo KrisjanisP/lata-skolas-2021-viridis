@@ -8,10 +8,9 @@ initMap();
 handleMapClicks();
 
 window.submitSelectedFields = function(){
-  console.log("hello");
+
   let selected = getSelectedFields()
-  console.log(JSON.stringify(selected));
-  fetch('http://127.0.0.1:5000/tks93tiles', {
+  fetch('/tiles', {
     method: 'POST', // or 'PUT'
     headers: {
       'Content-Type': 'application/json',

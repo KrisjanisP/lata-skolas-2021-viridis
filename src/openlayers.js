@@ -19,7 +19,7 @@ export function initMap() {
 
   const vector = new VectorImageLayer({
     source: new VectorSource({
-      url: "http://127.0.0.1:5000/tks93tiles",
+      url: "/tiles",
       format: new GeoJSON({ dataProjection: "EPSG:3857" }),
     }),
   });
@@ -77,6 +77,7 @@ export function handleMapClicks() {
 
       const selIndex = selected.indexOf(f);
       if (selIndex < 0) {
+        if(selected.length>=10) return;
         selected.push(f);
         f.setStyle(highlightStyle);
       } else {
