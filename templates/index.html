@@ -1,0 +1,168 @@
+{{template "header.html"}} {{template "index-navbar.html"}}
+<section id="large-logo" class="d-flex justify-content-center">
+  <img
+    style="width: 100%; height: fit-content; z-index: -1"
+    src="images/logo_background.jpg"
+  />
+</section>
+<section id="our-goal" class="bg-white pb-5">
+  <div class="container p-5">
+    <h1 class="text-center my-1">Mūsu Mērķi</h1>
+    <hr class="mb-5" />
+    <div class="row">
+      <div class="col-12 col-lg-4 px-3 my-2">
+        <div class="card">
+          <img
+            style="object-fit: cover"
+            src="/images/unknown_edited.jpg"
+            class="card-img-top"
+            height="250px"
+            alt="..."
+          />
+          <div
+            class="card-body p-5 shadow text-center"
+            style="min-height: 320px"
+          >
+            <h5 class="card-title py-3 fw-bold">Baltijas jūras attīrīšana</h5>
+            <p class="card-text card-text fs-5 fw-normal">
+              Mūsu mērķis ir samazināt lauksaimnieku izmantotā mēslojuma
+              daudzumu, ar to uzlabojot Baltijas jūrs ekoloģisko stāvokli.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4 px-3 my-2">
+        <div class="card">
+          <img
+            style="object-fit: cover"
+            src="/images/tractor.jpg"
+            class="card-img-top"
+            height="250px"
+            alt="..."
+          />
+          <div
+            class="card-body p-5 shadow text-center"
+            style="min-height: 320px"
+          >
+            <h5 class="card-title py-3 fw-bold">
+              Efektīvāka mēslojuma pielietošana
+            </h5>
+            <p class="card-text card-text fs-5 fw-normal">
+              Mūsu mērķis ir uzlabot izmantotā mēslojuma effektivitāti un
+              samazināt lauksaimnieku izmaksas.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4 px-3 my-2">
+        <div class="card">
+          <img
+            style="object-fit: cover"
+            src="/images/tile_map.png"
+            class="card-img-top"
+            height="250px"
+            alt="..."
+          />
+          <div
+            class="card-body p-5 shadow text-center"
+            style="min-height: 320px"
+          >
+            <h5 class="card-title py-3 fw-bold">Viegli saprotams produkts</h5>
+            <p class="card-text card-text fs-5 fw-normal">
+              Viens no mūsu vissvarīgākajiem mērķiem ir izveidot produktu, kas
+              ir vienkāršs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section
+  id="about-us"
+  class="pb-5"
+  style="
+    background-image: url('images/ndvi_edited.jpg');
+    background-position: 50% 50%;
+  "
+>
+  <div class="container">
+    <div class="bg-white border border-top col-12 col-md-6 p-5">
+      <h1>Par Mums</h1>
+      <hr />
+      <p class="py-3">
+        Mēs esam jauna, entuziastiska programmētāju un biologu komanda no
+        Latvijas labākajām skolām. Ģeotelpisko datu hakatona “Skolēnu hakatons
+        2021” ietvaros esam izveidojuši produktu, kas varētu uzlabot Baltijas
+        jūras piesārņojuma līmeni, lauksaimnieku zemes auglību un datu
+        pieejamību. Mēs esam izstrādājuši produktu, kas spēj novērtēt augu
+        auglību un veselību. No šiem datiem iespējams saprast kurās vietās lauks
+        ir jāmēslo vairāk un kurās mazāk. Mēs ceram izmaīt piesārņojuma līmeni,
+        pēc iespējas ātrāk, lai varētu droši peldēties Baltijas jūrā.
+      </p>
+    </div>
+  </div>
+</section>
+<section id="ndvi" class="bg-white">
+  <div class="container p-5">
+    <h1 class="text-center my-1">Normalizētās starpības veģetācijas indekss</h1>
+    <hr class="mb-5" />
+    <div class="row">
+      <div class="col-12 col-md-6 p-2 p-lg-5">
+        <h3 class="text-center mb-4">Kas ir NSV indekss</h3>
+        <p style="text-indent: 3rem; text-align: justify">
+          NSV indekss ir augu veģetācijas novērtējums, kas parāda cik augi ir
+          veselīgi. Tas iespējams tāpēc, ka veselīgi augi absorbē redzamo gaismu
+          un fotosintēzes rezultātā izstaro infrasarkano, bet neveselīgi augi to
+          nespēj. Ar šiem datiem par augu veselību var izsecināt kuriem augiem
+          pietrūkst ūdens, minerālvielas vai saules gaismas. Tas palīdz
+          efektīvāk lietot mēslojumus, kā rezultātā iegūst ne tikai
+          lauksaimnieks, bet arī ekoloģija.
+        </p>
+      </div>
+      <div class="col-12 col-md-6 p-2 p-lg-5">
+        <h3 class="text-center mb-4">Kā iegūst NSV indeksu</h3>
+        <p style="text-indent: 3rem; text-align: justify">
+          NSV indeksu iegūst salīdzinot augu atstaroto un izstaroto sarkanās un
+          infrasarkanās gaismas intensitāti. Fotosintēzes procesā augs izstaro
+          infrasarkano gaismu un absorbē sarkano gaismu, tāpēc veselīgam augam
+          ir lielāks infrasarkanās gaismas īpatsvars, ko parāda lielāks NSV
+          indekss. Lai uztaisītu indeksa karti ir nepieciešamas redzamā un
+          infrasarkanā diapazona aerofoto ar novērojamajiem augiem. Dažas datu
+          bāzes, piemēram, “Planet.com”, piedāvā atjauninātus datus katru dienu.
+        </p>
+      </div>
+    </div>
+    <div class="d-flex justify-content-center flex-column align-items-center">
+      <img style="max-width: 1000px" src="images/ndvi_scheme.jpg" />
+      <h3 class="text-center mt-5 mb-4">Pēcapstrāde un datu novērtēšana</h3>
+      <p style="text-indent: 3rem; text-align: justify" class="col-12 col-lg-6">
+        Mūsu produkts piedāvā divas NSV indeksa kartes: tīrā NSV indeksa karte
+        un kombinētā karte ar NSV pārklājumu. Tīrā NSV indeksa kartē indekss ir
+        attēlots ar sarkandzelteno gradientu. Šinī kartē ir labi izteikti NSV
+        indeksa sīkumi, taču var būt grūti saskatīt konkrētus objektus, tādēļ
+        tiek veidota kombinētā karte, kas savieno redzamās gaismas karti ar
+        indeksa karti, tajā var saskatīt sīkākas detaļas, pat ja tām ir līdzīgs
+        NSV indekss.
+      </p>
+    </div>
+    <div class="row">
+      <img src="images/nir.jpg" class="col-12 col-md-6 p-5" />
+      <img src="images/rgb.jpg" class="col-12 col-md-6 p-5" />
+    </div>
+    <div class="row">
+      <img src="images/ndvi_map.jpg" class="col-12 col-md-6 p-5" />
+      <img src="images/overlay_map.jpg" class="col-12 col-md-6 p-5" />
+    </div>
+  </div>
+</section>
+<section class="bg-white" style="height: 50vh">
+  <div class="container d-flex flex-column h-100 align-items-center">
+    <h1 class="my-5 text-center">Izmēģini jau šodien!</h1>
+
+    <button type="button" class="btn col-10 col-lg-6 col-md-8 map-btn">
+      <a href="/map.html" class="text-decoration-none">Doties Uz Karti</a>
+    </button>
+  </div>
+</section>
+{{template "footer.html"}}

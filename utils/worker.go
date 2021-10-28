@@ -2,30 +2,27 @@ package utils
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"os"
 	"time"
 )
 
 func StartWorker(db *sql.DB) {
 	for {
-		fmt.Println("Checking for tasks.")
+		l := log.New(os.Stdout, "[Worker] ", log.Ldate|log.Ltime)
+		l.Println("Checking for tasks.")
 		tasks, err := GetTaskQueueRecords(db)
 		if err != nil {
 			log.Fatal(err)
-			continue
 		}
-		fmt.Println()
 		for _, task := range tasks {
-			fmt.Println(task.TileName)
 			tile, err := GetTileUrlsRecord(db, task.TileName)
 			if err != nil {
 				log.Fatal(err)
-				continue
 			}
+			// process tile if necessary
 			ProcessTile(tile)
 		}
-		fmt.Println()
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 3)
 	}
 }

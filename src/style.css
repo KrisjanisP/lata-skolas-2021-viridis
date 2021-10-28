@@ -1,16 +1,58 @@
+*,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+}
 .btn-success {
-    color: #fff;
-    background-color: rgb(120,160,71);
-    border-color: #198754;
-    border-color: rgb(120,160,71);
+  color: #fff;
+  background-color: rgb(120, 160, 71);
+  border-color: #198754;
+  border-color: rgb(120, 160, 71);
 }
 
-.profile-text {
-    color: #fff;
-    transition: color 0.2s ease-in-out;
+.navbar-text {
+  color: #fff;
+  transition: color 0.2s ease-in-out;
 }
 
-.profile-text:hover {
-    color:#8dd62d;
-    transition: color 0.2s ease-in-out;
+.navbar-text:hover {
+  color: #8dd62d;
+  transition: color 0.2s ease-in-out;
+}
+
+.inverted-navbar-text {
+  color: #8dd62d;
+  transition: color 0.2s ease-in-out;
+}
+
+.inverted-navbar-text:hover {
+  color: #fff;
+  transition: color 0.2s ease-in-out;
+}
+
+.map-btn {
+  border-radius: 30px;
+  font-size: 48px;
+  border-color: #8dd62d;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.map-btn:hover {
+    background-color: #0C3356;
+    transition: background-color 0.2s ease-in-out;
+}
+  
+.map-btn a {
+    color: #8dd62d;
+    
 }

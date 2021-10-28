@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/KrisjanisP/viridis/utils"
@@ -16,8 +16,10 @@ import (
 )
 
 var db *sql.DB
+var l *log.Logger
 
 func main() {
+	l = log.New(os.Stdout, "[API] ", log.Ldate|log.Ltime)
 	os.Mkdir("./data/images", 0755)
 
 	var err error
@@ -36,7 +38,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", serveIndexHTML)
 	router.Static("/index", "./front-page")
-	router.Static("/images", "./front-page/images")
+	router.Static("/images", "./assets/images")
 	router.GET("/map.html", serveMapHTML)
 	router.GET("/profile.html", serveProfileHTML)
 	router.Static("/assets", "./assets") // serve assets like images
@@ -51,7 +53,11 @@ func main() {
 }
 
 func serveIndexHTML(c *gin.Context) {
-	c.File("./front-page/index.html")
+	c.HTML(
+		http.StatusOK,
+		"index.html",
+		gin.H{},
+	)
 }
 
 func serveMapHTML(c *gin.Context) {
@@ -109,7 +115,7 @@ func postTiles(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(tile_names)
+	l.Println("Received tiles: " + strings.Join(tile_names, " "))
 
 	for _, tile_name := range tile_names {
 		if tile_name == "" {

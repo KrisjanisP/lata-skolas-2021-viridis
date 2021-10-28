@@ -120,36 +120,34 @@ func generateTileOverlay(tile models.Tile) {
 }
 
 func ProcessTile(tile models.Tile) {
-	fmt.Println("Processing " + tile.Name)
-
+	l := log.New(os.Stdout, "[Worker] ", log.Ldate|log.Ltime)
 	rgbLoc := getTileRGBLocation(tile)
 	if !fileExists(rgbLoc) {
-		fmt.Println("Downloading RGB for " + tile.Name)
+		l.Println("Downloading RGB for " + tile.Name)
 		downloadAndConvertTileRGB(tile)
-		fmt.Println("Finished RGB for " + tile.Name)
+		l.Println("Finished RGB for " + tile.Name)
 	}
 
 	cirLoc := getTileCIRLocation(tile)
 	if !fileExists(cirLoc) {
-		fmt.Println("Downloading CIR for " + tile.Name)
+		l.Println("Downloading CIR for " + tile.Name)
 		downloadAndConvertTileCIR(tile)
-		fmt.Println("Finished CIR for " + tile.Name)
+		l.Println("Finished CIR for " + tile.Name)
 	}
 
 	ndviLoc := getTileNDVILocation(tile)
 	if !fileExists(ndviLoc) {
-		fmt.Println("Processing NDVI for " + tile.Name)
+		l.Println("Processing NDVI for " + tile.Name)
 		generateTileNDVI(tile)
-		fmt.Println("Finished NDVI for " + tile.Name)
+		l.Println("Finished NDVI for " + tile.Name)
 	}
 
 	overlayLoc := getTileOverlayLocation(tile)
 	if !fileExists(overlayLoc) {
-		fmt.Println("Processing overlay for " + tile.Name)
+		l.Println("Processing overlay for " + tile.Name)
 		generateTileOverlay(tile)
-		fmt.Println("Finished overlay for " + tile.Name)
+		l.Println("Finished overlay for " + tile.Name)
 	}
-	fmt.Println("Finished processing " + tile.Name)
 }
 
 func ConvertTiffToJPEG(tiff_r io.Reader, jpeg_w io.Writer) {
