@@ -29,11 +29,11 @@ func getTileCIRLocation(tile models.Tile) string {
 }
 
 func getTileNDVILocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_ndvi.jpeg", tile.Name)
+	return fmt.Sprintf("./data/images/%s_ndv.jpeg", tile.Name)
 }
 
 func getTileOverlayLocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_overlay.jpeg", tile.Name)
+	return fmt.Sprintf("./data/images/%s_ove.jpeg", tile.Name)
 }
 
 func downloadAndConvertTileRGB(tile models.Tile) {

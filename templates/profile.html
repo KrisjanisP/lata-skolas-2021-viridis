@@ -1,93 +1,34 @@
-{{template "header.html"}} {{template "navbar.html"}}
+{{template "header.html"}} {{template "profile-navbar.html"}}
 <div class="container my-5">
-  <h4 class="text-center">Jums pieejamās datnes</h4>
-  <table class="table text-center">
-    <thead>
-      <tr>
-        <th scope="col">Reģions</th>
-        <th scope="col">Datne</th>
-        <th scope="col">Tips</th>
-        <th scope="col">Datums</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row">2434-14_4</th>
-        <td>
-          <a href="/download/asdjfklasdf" target="_blank"
-            >4423-43_2_rgb.jpeg<i
-              class="fa fa-download mx-2"
-              aria-hidden="true"
-            ></i
-          ></a>
-        </td>
-        <td>Krāsainā ortofotokarte</td>
-        <td>27.10.2021</td>
-      </tr>
-      <tr>
-        <th scope="row">2434-14_4</th>
-        <td>
-          <a href="/download/asdjfklasdf" target="_blank"
-            >4423-43_2_cir.jpeg<i
-              class="fa fa-download mx-2"
-              aria-hidden="true"
-            ></i
-          ></a>
-        </td>
-        <td>Infrasarkanā ortofotokarte</td>
-        <td>27.10.2021</td>
-      </tr>
-      <tr>
-        <th scope="row">2434-14_4</th>
-        <td>
-          <a href="/download/asdjfklasdf" target="_blank"
-            >4423-43_2_ndvi.jpeg<i
-              class="fa fa-download mx-2"
-              aria-hidden="true"
-            ></i
-          ></a>
-        </td>
-        <td>Apstrādātā ortofotokarte</td>
-        <td>27.10.2021</td>
-      </tr>
-      <tr>
-        <th scope="row">2434-14_4</th>
-        <td>
-          <a href="/download/asdjfklasdf" target="_blank"
-            >4423-43_2_overlay.jpeg<i
-              class="fa fa-download mx-2"
-              aria-hidden="true"
-            ></i
-          ></a>
-        </td>
-        <td>Apstrādātā ar pārklājumu</td>
-        <td>27.10.2021</td>
-      </tr>
-    </tbody>
-  </table>
-  <table class="table text-center">
-    <thead>
-      <tr>
-        <th scope="col">Reģions</th>
-        <th scope="col">Datne</th>
-        <th scope="col">Tips</th>
-        <th scope="col">Datums</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .payload}}
-      <tr>
-        <th scope="row">2434-14_4</th>
-        <td>
-          <a href="/download/{{.DownLink}}" target="_blank"
-            >{{.FileName}}<i class="fa fa-download mx-2" aria-hidden="true"></i
-          ></a>
-        </td>
-        <td>{{.FileType}}</td>
-        <td>{{.ReqDate}}</td>
-      </tr>
-      {{end}}
-    </tbody>
-  </table>
+  <div class="bg-white p-4 shadow-lg">
+    <h4 class="text-center">Jums pieejamās datnes</h4>
+    <table class="table text-center table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Reģions</th>
+          <th scope="col">Datne</th>
+          <th scope="col">Tips</th>
+          <th scope="col">Datums</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .payload}}
+        <tr>
+          <th scope="row">2434-14_4</th>
+          <td>
+            <a href="/download/{{.DownLink}}" target="_blank"
+              >{{.FileName}}<i
+                class="fa fa-download mx-2"
+                aria-hidden="true"
+              ></i
+            ></a>
+          </td>
+          <td>{{.FileType}}</td>
+          <td>{{.ReqDate}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
 </div>
 <script src="dist/main.js"></script>

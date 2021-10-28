@@ -63,3 +63,26 @@ func GetTileUrlsRecord(db *sql.DB, tile_name string) (models.Tile, error) {
 
 	return result, nil
 }
+
+func GetTaskQueueRecords(db *sql.DB) ([]models.QueueTask, error) {
+	var tasks []models.QueueTask
+	rows, err := db.Query("SELECT * FROM tasks_queue")
+
+	if err != nil {
+		log.Fatal(err)
+		return tasks, nil
+	}
+
+	for rows.Next() {
+		var task models.QueueTask
+		err = rows.Scan(&task.Id,
+			&task.TileName, &task.ReqDate, &task.UserId)
+		if err != nil {
+			log.Fatal(err)
+			return tasks, nil
+		}
+		tasks = append(tasks, task)
+	}
+	rows.Close() //good habit to close
+	return tasks, nil
+}

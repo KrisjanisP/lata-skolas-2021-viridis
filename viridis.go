@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/KrisjanisP/viridis/utils"
-	process "github.com/KrisjanisP/viridis/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,11 +29,16 @@ func main() {
 
 	utils.InitGeoJSON(db)
 
+	go utils.StartWorker(db)
+
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", serveMapHTML)
-	router.GET("/profile", serveProfileHTML)
+	router.GET("/", serveIndexHTML)
+	router.Static("/index", "./front-page")
+	router.Static("/images", "./front-page/images")
+	router.GET("/map.html", serveMapHTML)
+	router.GET("/profile.html", serveProfileHTML)
 	router.Static("/assets", "./assets") // serve assets like images
 	router.Static("/dist", "./dist")     // serve javascript, css
 	router.GET("/tiles", getTiles)
@@ -43,6 +48,10 @@ func main() {
 	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
 	router.Run(":8080")
+}
+
+func serveIndexHTML(c *gin.Context) {
+	c.File("./front-page/index.html")
 }
 
 func serveMapHTML(c *gin.Context) {
@@ -108,15 +117,29 @@ func postTiles(c *gin.Context) {
 			return
 		}
 		tile, err := utils.GetTileUrlsRecord(db, tile_name)
+		if err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(500)
+			return
+		}
 		if tile.Name == "" {
 			c.AbortWithStatus(400)
 			return
 		}
+		time := time.Now().Format("2006-01-02 15:04:05")
+		stmt, err := db.Prepare("INSERT INTO tasks_queue(tile_name, req_date, user_id) values(?,?,?)")
 		if err != nil {
+			log.Fatal(err)
 			c.AbortWithStatus(500)
 			return
 		}
-		go process.ProcessTile(tile)
+
+		_, err = stmt.Exec(tile_name, time, 1)
+		if err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(500)
+			return
+		}
 	}
 
 	c.IndentedJSON(http.StatusCreated, tile_names)

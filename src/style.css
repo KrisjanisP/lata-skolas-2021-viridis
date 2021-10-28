@@ -6,11 +6,11 @@
 }
 
 .profile-text {
-    color:rgb(120,160,71);
+    color: #fff;
     transition: color 0.2s ease-in-out;
 }
 
 .profile-text:hover {
-    color:#198754;
+    color:#8dd62d;
     transition: color 0.2s ease-in-out;
 }
