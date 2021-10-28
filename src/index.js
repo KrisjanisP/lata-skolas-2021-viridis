@@ -20,6 +20,7 @@ window.submitSelectedFields = function(){
   .then(response => response.json())
   .then(data => {
     console.log('Success:', data);
+    window.location.href = "profile.html";
   })
   .catch((error) => {
     console.error('Error:', error);
