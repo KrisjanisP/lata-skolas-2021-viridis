@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "ViRiDiS",
+            "database": "${workspaceFolder:viridis}/data/db.sqlite"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

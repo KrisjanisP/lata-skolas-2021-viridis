@@ -2,13 +2,13 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
-	"github.com/KrisjanisP/viridis/models"
-	process "github.com/KrisjanisP/viridis/utils"
+	"github.com/KrisjanisP/viridis/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -16,9 +16,10 @@ import (
 )
 
 var db *sql.DB
+var l *log.Logger
 
 func main() {
-
+	l = log.New(os.Stdout, "[API] ", log.Ldate|log.Ltime)
 	os.Mkdir("./data/images", 0755)
 
 	var err error
@@ -27,10 +28,19 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	utils.InitGeoJSON(db)
+
+	go utils.StartWorker(db)
+
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", serveHTML)
+	router.GET("/", serveIndexHTML)
+	router.Static("/index", "./front-page")
+	router.Static("/images", "./assets/images")
+	router.GET("/map.html", serveMapHTML)
+	router.GET("/profile.html", serveProfileHTML)
 	router.Static("/assets", "./assets") // serve assets like images
 	router.Static("/dist", "./dist")     // serve javascript, css
 	router.GET("/tiles", getTiles)
@@ -39,49 +49,56 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
-	router.Run(":80")
+	router.Run(":8080")
 }
 
-func serveHTML(c *gin.Context) {
+func serveIndexHTML(c *gin.Context) {
 	c.HTML(
 		http.StatusOK,
 		"index.html",
+		gin.H{},
+	)
+}
+
+func serveMapHTML(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"map.html",
+		gin.H{},
+	)
+}
+
+type FileRow struct {
+	TileName string
+	FileName string
+	DownLink string
+	FileType string
+	ReqDate  string
+}
+
+func serveProfileHTML(c *gin.Context) {
+	payload := []FileRow{
+		{TileName: "2434-14_4",
+			FileName: "4423-43_2_rgb.jpeg",
+			FileType: "Krāsainā ortofotokarte",
+			ReqDate:  "27.10.2021",
+			DownLink: "asdfasdfa"},
+		{TileName: "2434-14_4",
+			FileName: "4423-43_2_rgb.jpeg",
+			FileType: "Krāsainā ortofotokarte",
+			ReqDate:  "27.10.2021",
+			DownLink: "asdfasdfa"},
+	}
+	c.HTML(
+		http.StatusOK,
+		"profile.html",
 		gin.H{
-			"title": "Home Page",
-		},
+			"payload": payload},
 	)
 }
 
 func getTiles(c *gin.Context) {
 	c.File("./data/tiles.geojson")
-}
-
-func getTileUrlsRecord(tile_name string) (models.Tile, error) {
-	var result models.Tile
-	rows, err := db.Query("SELECT * FROM tile_urls WHERE name = ?", tile_name)
-	if err != nil {
-		log.Fatal(err)
-		return result, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		id := result.Id
-		fmt.Println(id)
-		err = rows.Scan(&result.Id, &result.Name, &result.TfwURL, &result.RgbURL, &result.CirURL)
-		if err != nil {
-			log.Fatal(err)
-			return result, err
-		}
-	}
-
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-		return result, err
-	}
-
-	return result, nil
 }
 
 func postTiles(c *gin.Context) {
@@ -98,15 +115,37 @@ func postTiles(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(tile_names)
+	l.Println("Received tiles: " + strings.Join(tile_names, " "))
 
 	for _, tile_name := range tile_names {
-		tile, err := getTileUrlsRecord(tile_name)
+		if tile_name == "" {
+			c.AbortWithStatus(400)
+			return
+		}
+		tile, err := utils.GetTileUrlsRecord(db, tile_name)
 		if err != nil {
+			log.Fatal(err)
 			c.AbortWithStatus(500)
 			return
 		}
-		go process.ProcessTile(tile)
+		if tile.Name == "" {
+			c.AbortWithStatus(400)
+			return
+		}
+		time := time.Now().Format("2006-01-02 15:04:05")
+		stmt, err := db.Prepare("INSERT INTO tasks_queue(tile_name, req_date, user_id) values(?,?,?)")
+		if err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(500)
+			return
+		}
+
+		_, err = stmt.Exec(tile_name, time, 1)
+		if err != nil {
+			log.Fatal(err)
+			c.AbortWithStatus(500)
+			return
+		}
 	}
 
 	c.IndentedJSON(http.StatusCreated, tile_names)
