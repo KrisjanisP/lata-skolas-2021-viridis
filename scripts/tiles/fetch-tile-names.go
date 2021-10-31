@@ -8,7 +8,6 @@ import (
 	"regexp"
 
 	"github.com/KrisjanisP/viridis/database"
-	"github.com/KrisjanisP/viridis/models"
 	"github.com/schollz/progressbar/v3"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -41,9 +40,9 @@ func main() {
 		bar.Add(1)
 	}
 	tileNames = removeDuplicateValues(tileNames)
-	var tiles []models.Tile
+	var tiles []database.Tile
 	for _, tileName := range tileNames {
-		tiles = append(tiles, models.Tile{Name: tileName})
+		tiles = append(tiles, database.Tile{Name: tileName})
 	}
 	err = dbapi.InsertOrIgnoreTileRecords(tiles)
 	check(err)

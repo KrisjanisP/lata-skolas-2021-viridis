@@ -13,7 +13,6 @@ import (
 	"github.com/zenthangplus/goccm"
 
 	"github.com/KrisjanisP/viridis/database"
-	"github.com/KrisjanisP/viridis/models"
 	"github.com/KrisjanisP/viridis/utils"
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/schollz/progressbar/v3"
@@ -51,7 +50,7 @@ func main() {
 	for _, tile := range tiles {
 		// This function has to call before any goroutine
 		c.Wait()
-		go func(tile models.TileURLs) {
+		go func(tile database.TileURLs) {
 			name := tile.TileId
 			//fmt.Println(name)
 			tfwURL := tile.TfwURL

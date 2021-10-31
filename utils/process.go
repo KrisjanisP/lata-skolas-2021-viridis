@@ -9,18 +9,17 @@ import (
 	"os"
 
 	"github.com/KrisjanisP/viridis/database"
-	"github.com/KrisjanisP/viridis/models"
 	"golang.org/x/image/tiff"
 )
 
-func setFinishedState(rgb int, cir int, ndvi int, overlay int, finished *models.FinishedTile) {
+func setFinishedState(rgb int, cir int, ndvi int, overlay int, finished *database.FinishedTile) {
 	finished.Rgb = rgb
 	finished.Cir = cir
 	finished.Ndv = ndvi
 	finished.Ove = overlay
 }
 
-func ProcessTile(tile models.Tile, dbapi *database.DBAPI) {
+func ProcessTile(tile database.Tile, dbapi *database.DBAPI) {
 	l := log.New(os.Stdout, "[Worker] ", log.Ldate|log.Ltime)
 
 	tileURLs, err := dbapi.GetTileURLsRecord(tile.Id)

@@ -9,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/KrisjanisP/viridis/database"
-	"github.com/KrisjanisP/viridis/models"
 	"github.com/schollz/progressbar/v3"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -24,10 +23,10 @@ func main() {
 	dbapi, err := database.NewDB()
 	check(err)
 	defer dbapi.Close()
-	m := make(map[int64]models.TileURLs)
+	m := make(map[int64]database.TileURLs)
 	procFirstSet(dbapi, m)
 	procSecondSet(dbapi, m)
-	var tileURLsArr []models.TileURLs
+	var tileURLsArr []database.TileURLs
 	for _, tileUrls := range m {
 		tileURLsArr = append(tileURLsArr, tileUrls)
 	}
@@ -37,7 +36,7 @@ func main() {
 	dbapi.ReplaceTileURLsRecords(tileURLsArr)
 }
 
-func procFirstSet(dbapi *database.DBAPI, m map[int64]models.TileURLs) {
+func procFirstSet(dbapi *database.DBAPI, m map[int64]database.TileURLs) {
 	resp, err := http.Get(rgbUrlsUrl)
 	check(err)
 	defer resp.Body.Close()
@@ -74,7 +73,7 @@ func procFirstSet(dbapi *database.DBAPI, m map[int64]models.TileURLs) {
 	}
 }
 
-func procSecondSet(dbapi *database.DBAPI, m map[int64]models.TileURLs) {
+func procSecondSet(dbapi *database.DBAPI, m map[int64]database.TileURLs) {
 	resp, err := http.Get(cirUrlsUrl)
 	check(err)
 	defer resp.Body.Close()

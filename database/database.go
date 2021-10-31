@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/KrisjanisP/viridis/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -146,52 +145,52 @@ func (dbapi *DBAPI) Close() {
 	dbapi.updateFinishedTileRecord.Close()
 }
 
-func (dbapi *DBAPI) GetTileURLsRecords() ([]models.TileURLs, error) {
+func (dbapi *DBAPI) GetTileURLsRecords() ([]TileURLs, error) {
 	stmt := dbapi.getTileURLsRecords
 	rows, err := stmt.Query()
 	if err != nil {
-		return []models.TileURLs{}, err
+		return []TileURLs{}, err
 	}
 	defer rows.Close()
 
-	var result []models.TileURLs
+	var result []TileURLs
 	for rows.Next() {
-		var tileURLs models.TileURLs
+		var tileURLs TileURLs
 		err = rows.Scan(
 			&tileURLs.TileId,
 			&tileURLs.TfwURL,
 			&tileURLs.RgbURL,
 			&tileURLs.CirURL)
 		if err != nil {
-			return []models.TileURLs{}, err
+			return []TileURLs{}, err
 		}
 		result = append(result, tileURLs)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return []models.TileURLs{}, err
+		return []TileURLs{}, err
 	}
 
 	return result, nil
 }
 
-func (dbapi *DBAPI) GetTileURLsRecord(tileId int64) (models.TileURLs, error) {
+func (dbapi *DBAPI) GetTileURLsRecord(tileId int64) (TileURLs, error) {
 	stmt := dbapi.getTileURLsRecord
 	row := stmt.QueryRow(tileId)
 
-	var result models.TileURLs
+	var result TileURLs
 	err := row.Scan(&result.TileId, &result.TfwURL, &result.RgbURL, &result.CirURL)
 
 	if err != nil {
-		return models.TileURLs{}, err
+		return TileURLs{}, err
 	}
 
 	return result, nil
 }
 
 // Returns either number of rows affected by the update or error.
-func (dbapi *DBAPI) UpdateTileURLsRecord(tileURLs models.TileURLs) (int64, error) {
+func (dbapi *DBAPI) UpdateTileURLsRecord(tileURLs TileURLs) (int64, error) {
 	stmt := dbapi.updateTileURLsRecord
 
 	res, err := stmt.Exec(tileURLs.TfwURL, tileURLs.RgbURL, tileURLs.CirURL, tileURLs.TileId)
@@ -207,7 +206,7 @@ func (dbapi *DBAPI) UpdateTileURLsRecord(tileURLs models.TileURLs) (int64, error
 	return affect, nil
 }
 
-func (dbapi *DBAPI) InsertTileURLsRecord(tileURLs models.TileURLs) error {
+func (dbapi *DBAPI) InsertTileURLsRecord(tileURLs TileURLs) error {
 	stmt := dbapi.insertTileURLsRecord
 
 	_, err := stmt.Exec(tileURLs.TileId, tileURLs.TfwURL, tileURLs.RgbURL, tileURLs.CirURL)
@@ -217,7 +216,7 @@ func (dbapi *DBAPI) InsertTileURLsRecord(tileURLs models.TileURLs) error {
 	return nil
 }
 
-func (dbapi *DBAPI) ReplaceTileURLsRecords(tileURLsArr []models.TileURLs) error {
+func (dbapi *DBAPI) ReplaceTileURLsRecords(tileURLsArr []TileURLs) error {
 	tx, err := dbapi.database.Begin()
 	if err != nil {
 		return err
@@ -237,7 +236,7 @@ func (dbapi *DBAPI) ReplaceTileURLsRecords(tileURLsArr []models.TileURLs) error 
 	return tx.Commit()
 }
 
-func (dbapi *DBAPI) InsertTileRecords(tiles []models.Tile) error {
+func (dbapi *DBAPI) InsertTileRecords(tiles []Tile) error {
 	tx, err := dbapi.database.Begin()
 	if err != nil {
 		return err
@@ -256,7 +255,7 @@ func (dbapi *DBAPI) InsertTileRecords(tiles []models.Tile) error {
 
 	return tx.Commit()
 }
-func (dbapi *DBAPI) InsertOrIgnoreTileRecords(tiles []models.Tile) error {
+func (dbapi *DBAPI) InsertOrIgnoreTileRecords(tiles []Tile) error {
 	tx, err := dbapi.database.Begin()
 	if err != nil {
 		return err
@@ -275,7 +274,7 @@ func (dbapi *DBAPI) InsertOrIgnoreTileRecords(tiles []models.Tile) error {
 
 	return tx.Commit()
 }
-func (dbapi *DBAPI) ReplaceTileRecords(tiles []models.Tile) error {
+func (dbapi *DBAPI) ReplaceTileRecords(tiles []Tile) error {
 	tx, err := dbapi.database.Begin()
 	if err != nil {
 		return err
@@ -297,7 +296,7 @@ func (dbapi *DBAPI) ReplaceTileRecords(tiles []models.Tile) error {
 
 func (dbapi *DBAPI) GetTileId(tileName string) (int64, error) {
 	stmt := dbapi.getTileRecord
-	var result models.Tile
+	var result Tile
 	row := stmt.QueryRow(tileName)
 	err := row.Scan(&result.Id, &result.Name)
 
@@ -322,21 +321,21 @@ func (dbapi *DBAPI) InsertTile(tileName string) (int64, error) {
 	return id, nil
 }
 
-func (dbapi *DBAPI) GetFinishedTilesRecord(tileId int64) (models.FinishedTile, error) {
+func (dbapi *DBAPI) GetFinishedTilesRecord(tileId int64) (FinishedTile, error) {
 	stmt := dbapi.getFinishedTileRecord
 	row := stmt.QueryRow(tileId)
 
-	var result models.FinishedTile
+	var result FinishedTile
 	err := row.Scan(&result.TileId, &result.Rgb, &result.Cir, &result.Ndv, &result.Ove)
 
 	if err != nil {
-		return models.FinishedTile{}, err
+		return FinishedTile{}, err
 	}
 
 	return result, nil
 }
 
-func (dbapi *DBAPI) InsertFinishedTilesRecord(finishedTile models.FinishedTile) error {
+func (dbapi *DBAPI) InsertFinishedTilesRecord(finishedTile FinishedTile) error {
 	stmt := dbapi.insertFinishedTileRecord
 
 	_, err := stmt.Exec(finishedTile.TileId, finishedTile.Rgb, finishedTile.Cir, finishedTile.Ndv, finishedTile.Ove)
@@ -347,7 +346,7 @@ func (dbapi *DBAPI) InsertFinishedTilesRecord(finishedTile models.FinishedTile) 
 }
 
 // Returns either number of rows affected by the update or error.
-func (dbapi *DBAPI) UpdateFinishedTileRecord(finishedTile models.FinishedTile) (int64, error) {
+func (dbapi *DBAPI) UpdateFinishedTileRecord(finishedTile FinishedTile) (int64, error) {
 	stmt := dbapi.updateFinishedTileRecord
 
 	res, err := stmt.Exec(finishedTile.Rgb, finishedTile.Cir, finishedTile.Ndv, finishedTile.Ove, finishedTile.TileId)

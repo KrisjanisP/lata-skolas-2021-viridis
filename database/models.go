@@ -1,4 +1,4 @@
-package models
+package database
 
 // type for tiles table
 type Tile struct {

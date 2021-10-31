@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/KrisjanisP/viridis/models"
+	"github.com/KrisjanisP/viridis/database"
 )
 
-func downloadAndConvertTileRGB(tileName string, tileURLs models.TileURLs) {
+func downloadAndConvertTileRGB(tileName string, tileURLs database.TileURLs) {
 	// Get the data
 	resp, err := http.Get(tileURLs.RgbURL)
 	if err != nil {
@@ -29,7 +29,7 @@ func downloadAndConvertTileRGB(tileName string, tileURLs models.TileURLs) {
 	ConvertTiffToJPEG(resp.Body, out)
 }
 
-func downloadAndConvertTileCIR(tileName string, tileURLs models.TileURLs) {
+func downloadAndConvertTileCIR(tileName string, tileURLs database.TileURLs) {
 	// Get the data
 	resp, err := http.Get(tileURLs.CirURL)
 	if err != nil {
