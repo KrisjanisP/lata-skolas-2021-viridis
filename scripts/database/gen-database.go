@@ -12,7 +12,7 @@ import (
 
 const (
 	databaseFile  = "./data/db.sqlite"
-	schemaSQLFile = "./sql/schema.sql"
+	schemaSQLFile = "./database/schema.sql"
 )
 
 func main() {
