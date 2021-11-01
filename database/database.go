@@ -31,7 +31,15 @@ const (
 	updateFinishedTileRecordSQL = "UPDATE finishedtiles set rgb=?,cir=?,ndv=?,ove=? WHERE tileid=?"
 
 	//tilepossesion table
-	insertOrIgnoreTilePossesionRecordSQL = "INSERT OR IGNORE INTO tilepossesion(tileid, userid) VALUES(?,?)"
+	insertOrIgnoreTilePossesionRecordSQL   = "INSERT OR IGNORE INTO tilepossesion(tileid, userid) VALUES(?,?)"
+	selectPossesionRecordTileIdsSQL        = "SELECT DISTINCT tileid FROM tilepossesion"
+	joinPossesionRecordTileIdsNamesURLsSQL = `SELECT DISTINCT
+	tilepossesion.tileid, tiles.name, tileurls.tfwurl, tileurls.rgburl, tileurls.cirurl
+	FROM tilepossesion
+	INNER JOIN tiles
+		ON tilepossesion.tileid = tiles.id
+	INNER JOIN tileurls
+		ON tilepossesion.tileid = tileurls.tileid`
 )
 
 type DBAPI struct {
@@ -58,7 +66,9 @@ type DBAPI struct {
 	updateFinishedTileRecordStmt *sql.Stmt
 
 	// tilepossesion table
-	insertOrIgnoreTilePossesionRecordStmt *sql.Stmt
+	insertOrIgnoreTilePossesionRecordStmt   *sql.Stmt
+	selectPossesionRecordTileIdsStmt        *sql.Stmt
+	joinPossesionRecordTileIdsNamesURLsStmt *sql.Stmt
 }
 
 func NewDB() (*DBAPI, error) {
@@ -103,11 +113,15 @@ func NewDB() (*DBAPI, error) {
 	check(err)
 	insertFinishedTileRecord, err := sqlDB.Prepare(insertFinishedTileRecordSQL)
 	check(err)
-	updateFinishedTileRecord, err := sqlDB.Prepare(updateTileURLsRecordSQL)
+	updateFinishedTileRecord, err := sqlDB.Prepare(updateFinishedTileRecordSQL)
 	check(err)
 
 	// tilepossesion table
 	insertOrIgnoreTilePossesionRecord, err := sqlDB.Prepare(insertOrIgnoreTilePossesionRecordSQL)
+	check(err)
+	selectPossesionRecordTileIds, err := sqlDB.Prepare(selectPossesionRecordTileIdsSQL)
+	check(err)
+	joinPossesionRecordTileIdsNamesURLs, err := sqlDB.Prepare(joinPossesionRecordTileIdsNamesURLsSQL)
 	check(err)
 
 	dbapi := DBAPI{
@@ -130,7 +144,9 @@ func NewDB() (*DBAPI, error) {
 		insertFinishedTileRecordStmt: insertFinishedTileRecord,
 		updateFinishedTileRecordStmt: updateFinishedTileRecord,
 		// tilepossesion table
-		insertOrIgnoreTilePossesionRecordStmt: insertOrIgnoreTilePossesionRecord,
+		insertOrIgnoreTilePossesionRecordStmt:   insertOrIgnoreTilePossesionRecord,
+		selectPossesionRecordTileIdsStmt:        selectPossesionRecordTileIds,
+		joinPossesionRecordTileIdsNamesURLsStmt: joinPossesionRecordTileIdsNamesURLs,
 	}
 
 	return &dbapi, nil
@@ -157,6 +173,8 @@ func (dbapi *DBAPI) Close() {
 	dbapi.updateFinishedTileRecordStmt.Close()
 	// tilepossesion table
 	dbapi.insertOrIgnoreTilePossesionRecordStmt.Close()
+	dbapi.selectPossesionRecordTileIdsStmt.Close()
+	dbapi.joinPossesionRecordTileIdsNamesURLsStmt.Close()
 }
 
 func (dbapi *DBAPI) GetTileURLsRecords() ([]TileURLs, error) {
@@ -404,4 +422,63 @@ func (dbapi *DBAPI) InsertOrIgnoreTilePossesionRecords(tilePossesions []TilePoss
 		}
 	}
 	return tx.Commit()
+}
+
+func (dbapi *DBAPI) SelectDistinctPossesionRecordTileIds() ([]int64, error) {
+	stmt := dbapi.selectPossesionRecordTileIdsStmt
+	rows, err := stmt.Query()
+	if err != nil {
+		return []int64{}, err
+	}
+	defer rows.Close()
+
+	var tileIds []int64
+	for rows.Next() {
+		var tileId int64
+		err = rows.Scan(&tileId)
+		if err != nil {
+			return []int64{}, err
+		}
+		tileIds = append(tileIds, tileId)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []int64{}, err
+	}
+
+	return tileIds, nil
+}
+
+func (dbapi *DBAPI) JoinPossesionRecordTileIdsNamesURLs() ([]Tile, []TileURLs, error) {
+	stmt := dbapi.joinPossesionRecordTileIdsNamesURLsStmt
+	rows, err := stmt.Query()
+	if err != nil {
+		return []Tile{}, []TileURLs{}, err
+	}
+	defer rows.Close()
+
+	var tiles []Tile
+	var tileURLsArr []TileURLs
+	for rows.Next() {
+		var tileId int64
+		var tileName string
+		var tfwURL string
+		var rgbURL string
+		var cirURL string
+		err = rows.Scan(&tileId, &tileName, &tfwURL, &rgbURL, &cirURL)
+		if err != nil {
+			return []Tile{}, []TileURLs{}, err
+		}
+		tiles = append(tiles, Tile{Id: tileId, Name: tileName})
+		tileURLsArr = append(tileURLsArr, TileURLs{TileId: tileId,
+			TfwURL: tfwURL, RgbURL: rgbURL, CirURL: cirURL})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []Tile{}, []TileURLs{}, err
+	}
+
+	return tiles, tileURLsArr, nil
 }

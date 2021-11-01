@@ -25,12 +25,12 @@ func main() {
 	dbapi, err := database.NewDB()
 
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Failed to load the env vars: %v", err)
+		log.Panicf("Failed to load the env vars: %v", err)
 	}
 
 	auth, err := authenticator.New()
 	if err != nil {
-		log.Fatalf("Failed to initialize the authenticator: %v", err)
+		log.Panicf("Failed to initialize the authenticator: %v", err)
 	}
 
 	rtr := router.New()
@@ -52,6 +52,6 @@ func main() {
 	go utils.StartWorker(dbapi)
 
 	if err := http.ListenAndServe(":8080", rtr); err != nil {
-		log.Fatalf("There was an error with the http server: %v", err)
+		log.Panicf("There was an error with the http server: %v", err)
 	}
 }

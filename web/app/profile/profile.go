@@ -18,12 +18,6 @@ type FileRow struct {
 
 // Handler for our logged-in user page.
 func Handler(ctx *gin.Context) {
-	/*
-		finisheds, err := utils.GetFinishedTilesRecords(db)
-		if err != nil {
-			log.Fatal(err)
-		}
-	*/
 	var payload []FileRow
 	/*
 		for _, finished := range finisheds {
