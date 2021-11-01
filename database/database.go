@@ -29,30 +29,36 @@ const (
 	getFinishedTileRecordSQL    = "SELECT * FROM finishedtiles WHERE tileid = ?"
 	insertFinishedTileRecordSQL = "INSERT INTO finishedtiles(tileid,rgb,cir,ndv,ove) VALUES(?,?,?,?,?)"
 	updateFinishedTileRecordSQL = "UPDATE finishedtiles set rgb=?,cir=?,ndv=?,ove=? WHERE tileid=?"
+
+	//tilepossesion table
+	insertOrIgnoreTilePossesionRecordSQL = "INSERT OR IGNORE INTO tilepossesion(tileid, userid) VALUES(?,?)"
 )
 
 type DBAPI struct {
 	database *sql.DB
 
 	// tileurls table
-	getTileURLsRecords    *sql.Stmt
-	getTileURLsRecord     *sql.Stmt
-	updateTileURLsRecord  *sql.Stmt
-	insertTileURLsRecord  *sql.Stmt
-	replaceTileURLsRecord *sql.Stmt
+	getTileURLsRecordsStmt    *sql.Stmt
+	getTileURLsRecordStmt     *sql.Stmt
+	updateTileURLsRecordStmt  *sql.Stmt
+	insertTileURLsRecordStmt  *sql.Stmt
+	replaceTileURLsRecordStmt *sql.Stmt
 
 	// tile table
-	getTileRecords           *sql.Stmt
-	getTileRecord            *sql.Stmt
-	insertTileRecord         *sql.Stmt
-	replaceTileRecord        *sql.Stmt
-	insertOrIgnoreTileRecord *sql.Stmt
+	getTileRecordsStmt           *sql.Stmt
+	getTileRecordStmt            *sql.Stmt
+	insertTileRecordStmt         *sql.Stmt
+	replaceTileRecordStmt        *sql.Stmt
+	insertOrIgnoreTileRecordStmt *sql.Stmt
 
 	// finishedtiles table
-	getFinishedTileRecord    *sql.Stmt
-	getFinishedTileRecords   *sql.Stmt
-	insertFinishedTileRecord *sql.Stmt
-	updateFinishedTileRecord *sql.Stmt
+	getFinishedTileRecordStmt    *sql.Stmt
+	getFinishedTileRecordsStmt   *sql.Stmt
+	insertFinishedTileRecordStmt *sql.Stmt
+	updateFinishedTileRecordStmt *sql.Stmt
+
+	// tilepossesion table
+	insertOrIgnoreTilePossesionRecordStmt *sql.Stmt
 }
 
 func NewDB() (*DBAPI, error) {
@@ -100,25 +106,31 @@ func NewDB() (*DBAPI, error) {
 	updateFinishedTileRecord, err := sqlDB.Prepare(updateTileURLsRecordSQL)
 	check(err)
 
+	// tilepossesion table
+	insertOrIgnoreTilePossesionRecord, err := sqlDB.Prepare(insertOrIgnoreTilePossesionRecordSQL)
+	check(err)
+
 	dbapi := DBAPI{
 		database: sqlDB,
 		// tilurls table
-		getTileURLsRecords:    getTileURLsRecords,
-		getTileURLsRecord:     getTileURLsRecord,
-		updateTileURLsRecord:  updateTileURLsRecord,
-		insertTileURLsRecord:  insertTileURLsRecord,
-		replaceTileURLsRecord: replaceTileURLsRecord,
+		getTileURLsRecordsStmt:    getTileURLsRecords,
+		getTileURLsRecordStmt:     getTileURLsRecord,
+		updateTileURLsRecordStmt:  updateTileURLsRecord,
+		insertTileURLsRecordStmt:  insertTileURLsRecord,
+		replaceTileURLsRecordStmt: replaceTileURLsRecord,
 		// tile table
-		getTileRecords:           getTileRecords,
-		getTileRecord:            getTileRecord,
-		insertTileRecord:         insertTileRecord,
-		insertOrIgnoreTileRecord: insertOrIgnoreTileRecord,
-		replaceTileRecord:        replaceTileRecord,
+		getTileRecordsStmt:           getTileRecords,
+		getTileRecordStmt:            getTileRecord,
+		insertTileRecordStmt:         insertTileRecord,
+		insertOrIgnoreTileRecordStmt: insertOrIgnoreTileRecord,
+		replaceTileRecordStmt:        replaceTileRecord,
 		// finished table
-		getFinishedTileRecord:    getFinishedTileRecord,
-		getFinishedTileRecords:   getFinishedTileRecords,
-		insertFinishedTileRecord: insertFinishedTileRecord,
-		updateFinishedTileRecord: updateFinishedTileRecord,
+		getFinishedTileRecordStmt:    getFinishedTileRecord,
+		getFinishedTileRecordsStmt:   getFinishedTileRecords,
+		insertFinishedTileRecordStmt: insertFinishedTileRecord,
+		updateFinishedTileRecordStmt: updateFinishedTileRecord,
+		// tilepossesion table
+		insertOrIgnoreTilePossesionRecordStmt: insertOrIgnoreTilePossesionRecord,
 	}
 
 	return &dbapi, nil
@@ -127,26 +139,28 @@ func NewDB() (*DBAPI, error) {
 func (dbapi *DBAPI) Close() {
 	dbapi.database.Close()
 	// tilurls table
-	dbapi.getTileURLsRecords.Close()
-	dbapi.getTileURLsRecord.Close()
-	dbapi.updateTileURLsRecord.Close()
-	dbapi.insertTileURLsRecord.Close()
-	dbapi.replaceTileURLsRecord.Close()
+	dbapi.getTileURLsRecordsStmt.Close()
+	dbapi.getTileURLsRecordStmt.Close()
+	dbapi.updateTileURLsRecordStmt.Close()
+	dbapi.insertTileURLsRecordStmt.Close()
+	dbapi.replaceTileURLsRecordStmt.Close()
 	// tile table
-	dbapi.getTileRecords.Close()
-	dbapi.getTileRecord.Close()
-	dbapi.insertTileRecord.Close()
-	dbapi.insertOrIgnoreTileRecord.Close()
-	dbapi.replaceTileRecord.Close()
+	dbapi.getTileRecordsStmt.Close()
+	dbapi.getTileRecordStmt.Close()
+	dbapi.insertTileRecordStmt.Close()
+	dbapi.insertOrIgnoreTileRecordStmt.Close()
+	dbapi.replaceTileRecordStmt.Close()
 	// finished table
-	dbapi.getFinishedTileRecord.Close()
-	dbapi.getFinishedTileRecords.Close()
-	dbapi.insertFinishedTileRecord.Close()
-	dbapi.updateFinishedTileRecord.Close()
+	dbapi.getFinishedTileRecordStmt.Close()
+	dbapi.getFinishedTileRecordsStmt.Close()
+	dbapi.insertFinishedTileRecordStmt.Close()
+	dbapi.updateFinishedTileRecordStmt.Close()
+	// tilepossesion table
+	dbapi.insertOrIgnoreTilePossesionRecordStmt.Close()
 }
 
 func (dbapi *DBAPI) GetTileURLsRecords() ([]TileURLs, error) {
-	stmt := dbapi.getTileURLsRecords
+	stmt := dbapi.getTileURLsRecordsStmt
 	rows, err := stmt.Query()
 	if err != nil {
 		return []TileURLs{}, err
@@ -176,7 +190,7 @@ func (dbapi *DBAPI) GetTileURLsRecords() ([]TileURLs, error) {
 }
 
 func (dbapi *DBAPI) GetTileURLsRecord(tileId int64) (TileURLs, error) {
-	stmt := dbapi.getTileURLsRecord
+	stmt := dbapi.getTileURLsRecordStmt
 	row := stmt.QueryRow(tileId)
 
 	var result TileURLs
@@ -191,7 +205,7 @@ func (dbapi *DBAPI) GetTileURLsRecord(tileId int64) (TileURLs, error) {
 
 // Returns either number of rows affected by the update or error.
 func (dbapi *DBAPI) UpdateTileURLsRecord(tileURLs TileURLs) (int64, error) {
-	stmt := dbapi.updateTileURLsRecord
+	stmt := dbapi.updateTileURLsRecordStmt
 
 	res, err := stmt.Exec(tileURLs.TfwURL, tileURLs.RgbURL, tileURLs.CirURL, tileURLs.TileId)
 	if err != nil {
@@ -207,7 +221,7 @@ func (dbapi *DBAPI) UpdateTileURLsRecord(tileURLs TileURLs) (int64, error) {
 }
 
 func (dbapi *DBAPI) InsertTileURLsRecord(tileURLs TileURLs) error {
-	stmt := dbapi.insertTileURLsRecord
+	stmt := dbapi.insertTileURLsRecordStmt
 
 	_, err := stmt.Exec(tileURLs.TileId, tileURLs.TfwURL, tileURLs.RgbURL, tileURLs.CirURL)
 	if err != nil {
@@ -224,7 +238,7 @@ func (dbapi *DBAPI) ReplaceTileURLsRecords(tileURLsArr []TileURLs) error {
 	defer tx.Rollback()
 
 	for _, tile := range tileURLsArr {
-		stmt := tx.Stmt(dbapi.replaceTileURLsRecord)
+		stmt := tx.Stmt(dbapi.replaceTileURLsRecordStmt)
 		_, err := stmt.Exec(tile.TileId, tile.TfwURL, tile.RgbURL, tile.CirURL)
 		if err != nil {
 			tx.Rollback()
@@ -244,7 +258,7 @@ func (dbapi *DBAPI) InsertTileRecords(tiles []Tile) error {
 	defer tx.Rollback()
 
 	for _, tile := range tiles {
-		stmt := tx.Stmt(dbapi.insertTileRecord)
+		stmt := tx.Stmt(dbapi.insertTileRecordStmt)
 		_, err := stmt.Exec(tile.Name)
 		if err != nil {
 			tx.Rollback()
@@ -263,7 +277,7 @@ func (dbapi *DBAPI) InsertOrIgnoreTileRecords(tiles []Tile) error {
 	defer tx.Rollback()
 
 	for _, tile := range tiles {
-		stmt := tx.Stmt(dbapi.insertOrIgnoreTileRecord)
+		stmt := tx.Stmt(dbapi.insertOrIgnoreTileRecordStmt)
 		_, err := stmt.Exec(tile.Name)
 		if err != nil {
 			tx.Rollback()
@@ -282,7 +296,7 @@ func (dbapi *DBAPI) ReplaceTileRecords(tiles []Tile) error {
 	defer tx.Rollback()
 
 	for _, tile := range tiles {
-		stmt := tx.Stmt(dbapi.replaceTileRecord)
+		stmt := tx.Stmt(dbapi.replaceTileRecordStmt)
 		_, err := stmt.Exec(tile.Name)
 		if err != nil {
 			tx.Rollback()
@@ -295,7 +309,7 @@ func (dbapi *DBAPI) ReplaceTileRecords(tiles []Tile) error {
 }
 
 func (dbapi *DBAPI) GetTileId(tileName string) (int64, error) {
-	stmt := dbapi.getTileRecord
+	stmt := dbapi.getTileRecordStmt
 	var result Tile
 	row := stmt.QueryRow(tileName)
 	err := row.Scan(&result.Id, &result.Name)
@@ -307,7 +321,7 @@ func (dbapi *DBAPI) GetTileId(tileName string) (int64, error) {
 }
 
 func (dbapi *DBAPI) InsertTile(tileName string) (int64, error) {
-	stmt := dbapi.insertTileRecord
+	stmt := dbapi.insertTileRecordStmt
 
 	res, err := stmt.Exec(tileName)
 
@@ -322,7 +336,7 @@ func (dbapi *DBAPI) InsertTile(tileName string) (int64, error) {
 }
 
 func (dbapi *DBAPI) GetFinishedTilesRecord(tileId int64) (FinishedTile, error) {
-	stmt := dbapi.getFinishedTileRecord
+	stmt := dbapi.getFinishedTileRecordStmt
 	row := stmt.QueryRow(tileId)
 
 	var result FinishedTile
@@ -336,7 +350,7 @@ func (dbapi *DBAPI) GetFinishedTilesRecord(tileId int64) (FinishedTile, error) {
 }
 
 func (dbapi *DBAPI) InsertFinishedTilesRecord(finishedTile FinishedTile) error {
-	stmt := dbapi.insertFinishedTileRecord
+	stmt := dbapi.insertFinishedTileRecordStmt
 
 	_, err := stmt.Exec(finishedTile.TileId, finishedTile.Rgb, finishedTile.Cir, finishedTile.Ndv, finishedTile.Ove)
 	if err != nil {
@@ -347,7 +361,7 @@ func (dbapi *DBAPI) InsertFinishedTilesRecord(finishedTile FinishedTile) error {
 
 // Returns either number of rows affected by the update or error.
 func (dbapi *DBAPI) UpdateFinishedTileRecord(finishedTile FinishedTile) (int64, error) {
-	stmt := dbapi.updateFinishedTileRecord
+	stmt := dbapi.updateFinishedTileRecordStmt
 
 	res, err := stmt.Exec(finishedTile.Rgb, finishedTile.Cir, finishedTile.Ndv, finishedTile.Ove, finishedTile.TileId)
 	if err != nil {
@@ -360,4 +374,34 @@ func (dbapi *DBAPI) UpdateFinishedTileRecord(finishedTile FinishedTile) (int64, 
 	}
 
 	return affect, nil
+}
+
+func (dbapi *DBAPI) InsertOrIgnoreTilePossesionRecord(tilePossesion TilePossesion) error {
+	stmt := dbapi.insertOrIgnoreTilePossesionRecordStmt
+
+	_, err := stmt.Exec(tilePossesion.TileId, tilePossesion.UserId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (dbapi *DBAPI) InsertOrIgnoreTilePossesionRecords(tilePossesions []TilePossesion) error {
+	tx, err := dbapi.database.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	for _, tilePossesion := range tilePossesions {
+		stmt := tx.Stmt(dbapi.insertOrIgnoreTilePossesionRecordStmt)
+		_, err := stmt.Exec(tilePossesion.TileId, tilePossesion.UserId)
+		if err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return err
+		}
+	}
+	return tx.Commit()
 }

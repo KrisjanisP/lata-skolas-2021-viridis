@@ -6,11 +6,6 @@ type Tile struct {
 	Name string
 }
 
-// type for users table
-type User struct {
-	Id int64
-}
-
 // tpye for finishedtiles table
 type FinishedTile struct {
 	TileId int64
@@ -23,7 +18,7 @@ type FinishedTile struct {
 // type for tilepossesion table
 type TilePossesion struct {
 	TileId int64
-	UserId int
+	UserId string
 }
 
 // type for tileurls table

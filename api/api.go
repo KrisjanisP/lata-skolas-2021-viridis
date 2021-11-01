@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/KrisjanisP/viridis/database"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,29 +27,53 @@ func (dbapi DBAPI) GetTiles(c *gin.Context) {
 	c.File("./data/tiles.geojson")
 }
 
-func (dbapi DBAPI) PostTiles(c *gin.Context) {
+func (dbapi DBAPI) PostTiles(ctx *gin.Context) {
 	var tileNames []string
-
-	if err := c.BindJSON(&tileNames); err != nil {
+	if err := ctx.BindJSON(&tileNames); err != nil {
+		return
+	}
+	if len(tileNames) >= 10 {
+		ctx.AbortWithStatus(400)
 		return
 	}
 
-	if len(tileNames) >= 10 {
-		c.AbortWithStatus(400)
+	session := sessions.Default(ctx)
+	profile := session.Get("profile")
+	m, ok := profile.(map[string]interface{})
+	if !ok {
+		ctx.AbortWithStatus(400)
+		return
+	}
+	sub := m["sub"]
+	if sub == nil {
+		ctx.AbortWithStatus(400)
 		return
 	}
 
 	l.Println("Received tiles: " + strings.Join(tileNames, " "))
+	var tileIds []int64
 	for _, tileName := range tileNames {
-		_, err := dbapi.GetTileId(tileName)
+		tileId, err := dbapi.GetTileId(tileName)
 		if err == sql.ErrNoRows {
-			c.AbortWithStatus(400)
+			log.Println(err)
+			ctx.AbortWithStatus(400)
+			return
 		} else if err != nil {
-			c.AbortWithStatus(500)
+			log.Println(err)
+			ctx.AbortWithStatus(500)
 			return
 		}
-		//time := time.Now().Format("2006-01-02 15:04:05")
-
+		tileIds = append(tileIds, tileId)
 	}
-	c.IndentedJSON(http.StatusCreated, tileNames)
+	var tilePossesions []database.TilePossesion
+	for _, tileId := range tileIds {
+		tilePossesion := database.TilePossesion{TileId: tileId, UserId: sub.(string)}
+		tilePossesions = append(tilePossesions, tilePossesion)
+	}
+	err := dbapi.InsertOrIgnoreTilePossesionRecords(tilePossesions)
+	if err != nil {
+		log.Println(err)
+		ctx.AbortWithStatus(400)
+	}
+	ctx.IndentedJSON(http.StatusCreated, tileNames)
 }
