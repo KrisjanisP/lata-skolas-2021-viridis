@@ -1,8 +1,10 @@
 package profile
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,10 +37,19 @@ func Handler(ctx *gin.Context) {
 		}
 	*/
 
+	session := sessions.Default(ctx)
+	profile := session.Get("profile")
+	m, ok := profile.(map[string]interface{})
+	if !ok {
+		ctx.AbortWithStatus(400)
+	}
+	sub := m["sub"]
+	fmt.Println(sub)
 	ctx.HTML(
 		http.StatusOK,
 		"profile.html",
 		gin.H{
-			"payload": payload},
+			"payload": payload,
+			"profile": profile},
 	)
 }

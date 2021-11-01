@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/KrisjanisP/viridis/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -16,7 +17,7 @@ const (
 )
 
 func main() {
-	if fileExists(databaseFile) {
+	if utils.FileExists(databaseFile) {
 		fmt.Println("Database file already exists.")
 		fmt.Println("Be careful as this script creates a fresh database!")
 		fmt.Println("If you wish to create a new database, delete the current one.")
@@ -55,12 +56,4 @@ func check(e error) {
 		os.Remove(databaseFile)
 		log.Panic(e)
 	}
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }
