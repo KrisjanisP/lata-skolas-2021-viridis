@@ -42,9 +42,9 @@ func main() {
 	rtr.GET("/", index.Handler)
 	rtr.GET("/login", login.Handler(auth))
 	rtr.GET("/callback", callback.Handler(auth))
-	rtr.GET("/profile.html", middleware.IsAuthenticated, profile.Handler)
 	rtr.GET("/map.html", middleware.IsAuthenticated, karte.Handler)
 	rtr.GET("/logout", logout.Handler)
+	rtr.GET("/profile.html", middleware.IsAuthenticated, profile.DBAPI{DBAPI: dbapi}.Handler)
 
 	rtr.GET("/tiles", api.DBAPI{DBAPI: dbapi}.GetTiles)
 	rtr.POST("/tiles", api.DBAPI{DBAPI: dbapi}.PostTiles)

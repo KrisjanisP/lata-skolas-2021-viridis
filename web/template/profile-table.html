@@ -1,0 +1,26 @@
+<table class="table text-center table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">Reģions</th>
+      <th scope="col">Datne</th>
+      <th scope="col">Tips</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .payload}}
+    <tr>
+      <th scope="row">{{.TileName}}</th>
+      <td>
+        {{if .IsFinished}}
+        <a href="{{.DownLink}}" target="_blank"
+          >{{.FileName}}<i class="fa fa-download mx-2" aria-hidden="true"></i
+        ></a>
+        {{ else }}
+        Analizē reģionu<span class="wait">.</span>
+        {{end}}
+      </td>
+      <td>{{.FileType}}</td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
