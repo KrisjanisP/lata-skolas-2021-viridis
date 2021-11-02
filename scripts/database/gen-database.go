@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	databaseDir   = "./data/"
 	databaseFile  = "./data/db.sqlite"
 	schemaSQLFile = "./database/schema.sql"
 )
@@ -25,7 +26,10 @@ func main() {
 		fmt.Println("The script is exiting.")
 		return
 	}
-	_, err := os.Create(databaseFile)
+	err := os.MkdirAll(databaseDir, 0777)
+	check(err)
+
+	_, err = os.Create(databaseFile)
 	check(err)
 
 	sqlDB, err := sql.Open("sqlite3", databaseFile)

@@ -6,7 +6,7 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 
 2021.10.07 - 2021.11.04
 
-![example](web/assets/example.png)
+![example](./example.png)
 # Info par hakatonu
 
 [Atvērto ģeotelpisko datu hakatons skolēniem 2021](https://www.lata.org.lv/skolas-2021)
@@ -23,6 +23,47 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 
 > Hakatona dalībnieku sasniedzamais rezultāts ir radīt inovatīvu lietotni, kas risina sabiedrībai būtisku problēmu, izmantojot atvērtos ģeotelpiskos datus.
 
+## Lokālā projekta startēšana
+
+Pirmkārt, vēlams lai uz datora būtu:
+* Uzstādīta Go jeb golang programmēšanas valoda
+* Uzstādīta Python3 programmēšanas valoda
+* Uzstādīts sqlite3 CLI
+* Uzstādīts npm jeb node package manager
+* Pieejami vismaz papildus 8 GB brīvpiekļuves atmiņas
+
+Datubāzes sākotnējā izveide:
+```
+go run scripts/database/gen-database.go
+```
+Datubāzes sākotnējā aizpilde:
+```
+go run scripts/tiles/fetch-tile-names.go
+go run scripts/links/fetch-tile-links.go
+```
+TKS93 kartes sadalījuma ģenerēšana:
+```
+go run scripts/geotiff/gen-geotiff.go
+```
+Pierakstīšanās sistēmas pieslēgšana:
+```
+jāizveido .env fails, kurā jānorāda sekojošās vērtības:
+AUTH0_DOMAIN
+AUTH0_CLIENT_ID
+AUTH0_CLIENT_SECRET
+AUTH0_CALLBACK_URL
+, kuras var iegūt piereģistrējoties https://auth0.com/
+```
+Kad visi iepriekšējie soļi izpildīti,
+projekta palaišana uz porta 8080:
+```
+go run .
+```
+Lai kaut ko kodēt mājaslapas javascript:
+```
+cd web/src && npm install
+npm run dev
+```
 ## Vērtēšanas kritēriji
 
 1. Atvērto ģeotelpisko datu inovatīvs pielietojums.
