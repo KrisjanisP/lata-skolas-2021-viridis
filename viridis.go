@@ -46,8 +46,9 @@ func main() {
 	rtr.GET("/logout", logout.Handler)
 	rtr.GET("/profile.html", middleware.IsAuthenticated, profile.DBAPI{DBAPI: dbapi}.Handler)
 
-	rtr.GET("/tiles", api.DBAPI{DBAPI: dbapi}.GetTiles)
-	rtr.POST("/tiles", api.DBAPI{DBAPI: dbapi}.PostTiles)
+	rtr.GET("/tiles", middleware.IsAuthenticated, api.DBAPI{DBAPI: dbapi}.GetTiles)
+	rtr.POST("/tiles", middleware.IsAuthenticated, api.DBAPI{DBAPI: dbapi}.PostTiles)
+	rtr.GET("/download/:tileid/:type", middleware.IsAuthenticated, api.DBAPI{DBAPI: dbapi}.DownloadFile)
 
 	go utils.StartWorker(dbapi)
 

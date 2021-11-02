@@ -20,26 +20,26 @@ func GetTileOverlayFileName(tileName string) string {
 	return fmt.Sprintf("%s_overlay.jpeg", tileName)
 }
 
-func getTileRGBLocation(tileName string) string {
+func GetTileRGBLocation(tileName string) string {
 	tileFileName := GetTileRGBFileName(tileName)
 	return fmt.Sprintf("./data/images/%s", tileFileName)
 }
 
-func getTileCIRLocation(tileName string) string {
+func GetTileCIRLocation(tileName string) string {
 	tileFileName := GetTileCIRFileName(tileName)
 	return fmt.Sprintf("./data/images/%s", tileFileName)
 }
 
-func getTileNDVILocation(tileName string) string {
+func GetTileNDVILocation(tileName string) string {
 	tileFileName := GetTileNDVIFileName(tileName)
 	return fmt.Sprintf("./data/images/%s", tileFileName)
 }
 
-func getTileOverlayLocation(tileName string) string {
+func GetTileOverlayLocation(tileName string) string {
 	tileFileName := GetTileOverlayFileName(tileName)
 	return fmt.Sprintf("./data/images/%s_ove.jpeg", tileFileName)
 }
 
-func getImageDirLocation() string {
+func GetImageDirLocation() string {
 	return fmt.Sprint("./data/images/")
 }

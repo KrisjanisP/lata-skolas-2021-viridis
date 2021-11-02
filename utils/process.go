@@ -40,7 +40,7 @@ func ProcessTile(tile database.Tile, tileURLs database.TileURLs, dbapi *database
 		log.Panic(err)
 	}
 
-	rgbLoc := getTileRGBLocation(tile.Name)
+	rgbLoc := GetTileRGBLocation(tile.Name)
 	if finished.Rgb == 0 || !FileExists(rgbLoc) {
 		setFinishedState(0, 0, 0, 0, &finished)
 		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
@@ -53,7 +53,7 @@ func ProcessTile(tile database.Tile, tileURLs database.TileURLs, dbapi *database
 		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	cirLoc := getTileCIRLocation(tile.Name)
+	cirLoc := GetTileCIRLocation(tile.Name)
 	if finished.Cir == 0 || !FileExists(cirLoc) {
 		setFinishedState(1, 0, 0, 0, &finished)
 		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
@@ -66,7 +66,7 @@ func ProcessTile(tile database.Tile, tileURLs database.TileURLs, dbapi *database
 		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	ndviLoc := getTileNDVILocation(tile.Name)
+	ndviLoc := GetTileNDVILocation(tile.Name)
 	if finished.Ndv == 0 || !FileExists(ndviLoc) {
 		setFinishedState(1, 1, 0, 0, &finished)
 		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
@@ -79,7 +79,7 @@ func ProcessTile(tile database.Tile, tileURLs database.TileURLs, dbapi *database
 		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	overlayLoc := getTileOverlayLocation(tile.Name)
+	overlayLoc := GetTileOverlayLocation(tile.Name)
 	if finished.Ove == 0 || !FileExists(overlayLoc) {
 		setFinishedState(1, 1, 1, 0, &finished)
 		cnt, err := dbapi.UpdateFinishedTileRecord(finished)

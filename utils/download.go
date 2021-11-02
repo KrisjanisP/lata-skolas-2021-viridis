@@ -17,13 +17,13 @@ func downloadAndConvertTileRGB(tileName string, tileURLs database.TileURLs) {
 	}
 	defer resp.Body.Close()
 	// Create Image dir
-	dir := getImageDirLocation()
+	dir := GetImageDirLocation()
 	err = os.MkdirAll(dir, 0777)
 	if err != nil {
 		log.Panic(err)
 	}
 	// Create the file
-	loc := getTileRGBLocation(tileName)
+	loc := GetTileRGBLocation(tileName)
 	out, err := os.Create(loc)
 	if err != nil {
 		log.Panic(err)
@@ -43,7 +43,7 @@ func downloadAndConvertTileCIR(tileName string, tileURLs database.TileURLs) {
 	defer resp.Body.Close()
 
 	// Create the file
-	loc := getTileCIRLocation(tileName)
+	loc := GetTileCIRLocation(tileName)
 	out, err := os.Create(loc)
 	if err != nil {
 		log.Panic(err)

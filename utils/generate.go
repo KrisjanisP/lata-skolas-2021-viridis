@@ -6,19 +6,19 @@ import (
 )
 
 func generateTileNDVI(tileName string) {
-	rgbLoc := getTileRGBLocation(tileName)
+	rgbLoc := GetTileRGBLocation(tileName)
 	rgbFile, err := os.Open(rgbLoc)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer rgbFile.Close()
-	cirLoc := getTileCIRLocation(tileName)
+	cirLoc := GetTileCIRLocation(tileName)
 	cirFile, err := os.Open(cirLoc)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer cirFile.Close()
-	ndviLoc := getTileNDVILocation(tileName)
+	ndviLoc := GetTileNDVILocation(tileName)
 	ndviFile, err := os.Create(ndviLoc)
 	if err != nil {
 		log.Panic(err)
@@ -28,19 +28,19 @@ func generateTileNDVI(tileName string) {
 }
 
 func generateTileOverlay(tileName string) {
-	ndviLoc := getTileNDVILocation(tileName)
+	ndviLoc := GetTileNDVILocation(tileName)
 	ndviFile, err := os.Open(ndviLoc)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer ndviFile.Close()
-	rgbLoc := getTileRGBLocation(tileName)
+	rgbLoc := GetTileRGBLocation(tileName)
 	rgbFile, err := os.Open(rgbLoc)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer rgbFile.Close()
-	overlayLoc := getTileOverlayLocation(tileName)
+	overlayLoc := GetTileOverlayLocation(tileName)
 	overlayFile, err := os.Create(overlayLoc)
 	if err != nil {
 		log.Panic(err)

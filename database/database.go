@@ -19,7 +19,8 @@ const (
 
 	// tile table
 	getTileRecordsSQL           = "SELECT * FROM tiles"
-	getTileRecordSQL            = "SELECT * FROM tiles WHERE name = ?"
+	getTileRecordByNameSQL      = "SELECT * FROM tiles WHERE name = ?"
+	getTileRecordByIdSQL        = "SELECT * FROM tiles WHERE id = ?"
 	insertTileRecordSQL         = "INSERT INTO tiles(name) VALUES(?)"
 	insertOrIgnoreTileRecordSQL = "INSERT OR IGNORE INTO tiles(name) VALUES(?)"
 	replaceTileRecordSQL        = "REPLACE INTO tiles(name) VALUES(?)"
@@ -32,6 +33,7 @@ const (
 
 	//tilepossesion table
 	insertOrIgnoreTilePossesionRecordSQL   = "INSERT OR IGNORE INTO tilepossesion(tileid, userid) VALUES(?,?)"
+	selectPossesionRecordSQL               = "SELECT tileid,userid FROM tilepossesion WHERE tileid=? AND userid=?"
 	selectPossesionRecordTileIdsSQL        = "SELECT DISTINCT tileid FROM tilepossesion"
 	joinPossesionRecordTileIdsNamesURLsSQL = `
 	SELECT DISTINCT
@@ -71,7 +73,8 @@ type DBAPI struct {
 
 	// tile table
 	getTileRecordsStmt           *sql.Stmt
-	getTileRecordStmt            *sql.Stmt
+	getTileRecordByNameStmt      *sql.Stmt
+	getTileRecordByIdStmt        *sql.Stmt
 	insertTileRecordStmt         *sql.Stmt
 	replaceTileRecordStmt        *sql.Stmt
 	insertOrIgnoreTileRecordStmt *sql.Stmt
@@ -85,6 +88,7 @@ type DBAPI struct {
 	// tilepossesion table
 	insertOrIgnoreTilePossesionRecordStmt       *sql.Stmt
 	selectPossesionRecordTileIdsStmt            *sql.Stmt
+	selectPossesionRecordStmt                   *sql.Stmt
 	joinPossesionRecordTileIdsNamesURLsStmt     *sql.Stmt
 	joinPossesionRecordTileIdsNamesFinishedStmt *sql.Stmt
 }
@@ -115,7 +119,9 @@ func NewDB() (*DBAPI, error) {
 	// tile table
 	getTileRecords, err := sqlDB.Prepare(getTileRecordsSQL)
 	check(err)
-	getTileRecord, err := sqlDB.Prepare(getTileRecordSQL)
+	getTileRecordByName, err := sqlDB.Prepare(getTileRecordByNameSQL)
+	check(err)
+	getTileRecordById, err := sqlDB.Prepare(getTileRecordByIdSQL)
 	check(err)
 	insertTileRecord, err := sqlDB.Prepare(insertTileRecordSQL)
 	check(err)
@@ -139,6 +145,8 @@ func NewDB() (*DBAPI, error) {
 	check(err)
 	selectPossesionRecordTileIds, err := sqlDB.Prepare(selectPossesionRecordTileIdsSQL)
 	check(err)
+	selectPossesionRecord, err := sqlDB.Prepare(selectPossesionRecordSQL)
+	check(err)
 	joinPossesionRecordTileIdsNamesURLs, err := sqlDB.Prepare(joinPossesionRecordTileIdsNamesURLsSQL)
 	check(err)
 	joinPossesionRecordTileIdsNamesFinished, err := sqlDB.Prepare(joinPossesionRecordTileIdsNamesFinishedSQL)
@@ -154,7 +162,8 @@ func NewDB() (*DBAPI, error) {
 		replaceTileURLsRecordStmt: replaceTileURLsRecord,
 		// tile table
 		getTileRecordsStmt:           getTileRecords,
-		getTileRecordStmt:            getTileRecord,
+		getTileRecordByNameStmt:      getTileRecordByName,
+		getTileRecordByIdStmt:        getTileRecordById,
 		insertTileRecordStmt:         insertTileRecord,
 		insertOrIgnoreTileRecordStmt: insertOrIgnoreTileRecord,
 		replaceTileRecordStmt:        replaceTileRecord,
@@ -166,6 +175,7 @@ func NewDB() (*DBAPI, error) {
 		// tilepossesion table
 		insertOrIgnoreTilePossesionRecordStmt:       insertOrIgnoreTilePossesionRecord,
 		selectPossesionRecordTileIdsStmt:            selectPossesionRecordTileIds,
+		selectPossesionRecordStmt:                   selectPossesionRecord,
 		joinPossesionRecordTileIdsNamesURLsStmt:     joinPossesionRecordTileIdsNamesURLs,
 		joinPossesionRecordTileIdsNamesFinishedStmt: joinPossesionRecordTileIdsNamesFinished,
 	}
@@ -183,7 +193,8 @@ func (dbapi *DBAPI) Close() {
 	dbapi.replaceTileURLsRecordStmt.Close()
 	// tile table
 	dbapi.getTileRecordsStmt.Close()
-	dbapi.getTileRecordStmt.Close()
+	dbapi.getTileRecordByNameStmt.Close()
+	dbapi.getTileRecordByIdStmt.Close()
 	dbapi.insertTileRecordStmt.Close()
 	dbapi.insertOrIgnoreTileRecordStmt.Close()
 	dbapi.replaceTileRecordStmt.Close()
@@ -195,6 +206,7 @@ func (dbapi *DBAPI) Close() {
 	// tilepossesion table
 	dbapi.insertOrIgnoreTilePossesionRecordStmt.Close()
 	dbapi.selectPossesionRecordTileIdsStmt.Close()
+	dbapi.selectPossesionRecordStmt.Close()
 	dbapi.joinPossesionRecordTileIdsNamesURLsStmt.Close()
 	dbapi.joinPossesionRecordTileIdsNamesFinishedStmt.Close()
 }
@@ -349,7 +361,7 @@ func (dbapi *DBAPI) ReplaceTileRecords(tiles []Tile) error {
 }
 
 func (dbapi *DBAPI) GetTileId(tileName string) (int64, error) {
-	stmt := dbapi.getTileRecordStmt
+	stmt := dbapi.getTileRecordByNameStmt
 	var result Tile
 	row := stmt.QueryRow(tileName)
 	err := row.Scan(&result.Id, &result.Name)
@@ -358,6 +370,18 @@ func (dbapi *DBAPI) GetTileId(tileName string) (int64, error) {
 		return 0, err
 	}
 	return result.Id, nil
+}
+
+func (dbapi *DBAPI) GetTileName(tileId int64) (string, error) {
+	stmt := dbapi.getTileRecordByIdStmt
+	var result Tile
+	row := stmt.QueryRow(tileId)
+	err := row.Scan(&result.Id, &result.Name)
+
+	if err != nil {
+		return "", err
+	}
+	return result.Name, nil
 }
 
 func (dbapi *DBAPI) InsertTile(tileName string) (int64, error) {
@@ -536,4 +560,18 @@ func (dbapi *DBAPI) JoinPossesionRecordTileIdsNamesFinished(userId string) ([]Ti
 	}
 
 	return tiles, finishedTiles, nil
+}
+
+func (dbapi *DBAPI) SelectPossesionRecordByUserId(tileid int64, userid string) (TilePossesion, error) {
+	stmt := dbapi.selectPossesionRecordStmt
+	row := stmt.QueryRow(tileid, userid)
+
+	var result TilePossesion
+	err := row.Scan(&result.TileId, &result.UserId)
+
+	if err != nil {
+		return TilePossesion{}, err
+	}
+
+	return result, nil
 }

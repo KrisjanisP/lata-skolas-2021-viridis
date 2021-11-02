@@ -38,32 +38,30 @@ func (dbapi DBAPI) Handler(ctx *gin.Context) {
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Println(len(tiles))
 	for i := 0; i < len(tiles); i++ {
 		var fileRow FileRow
 		fileRow.TileName = tiles[i].Name
 		fileRow.IsFinished = finishedTiles[i].Rgb == 1
 		fileRow.FileName = utils.GetTileRGBFileName(tiles[i].Name)
-		fileRow.DownLink = fmt.Sprintf("/download/%d?type=rgb", tiles[i].Id)
+		fileRow.DownLink = fmt.Sprintf("/download/%d/rgb", tiles[i].Id)
 		fileRow.FileType = "krāsainā ortofotokarte"
 		payload = append(payload, fileRow)
 		fileRow.IsFinished = finishedTiles[i].Cir == 1
 		fileRow.FileName = utils.GetTileCIRFileName(tiles[i].Name)
-		fileRow.DownLink = fmt.Sprintf("/download/%d?type=cir", tiles[i].Id)
+		fileRow.DownLink = fmt.Sprintf("/download/%d/cir", tiles[i].Id)
 		fileRow.FileType = "infrasarkanā ortofotokarte"
 		payload = append(payload, fileRow)
 		fileRow.IsFinished = finishedTiles[i].Ndv == 1
 		fileRow.FileName = utils.GetTileNDVIFileName(tiles[i].Name)
-		fileRow.DownLink = fmt.Sprintf("/download/%d?type=ndv", tiles[i].Id)
+		fileRow.DownLink = fmt.Sprintf("/download/%d/ndv", tiles[i].Id)
 		fileRow.FileType = "apstrādātā ortofotokarte"
 		payload = append(payload, fileRow)
 		fileRow.IsFinished = finishedTiles[i].Ove == 1
 		fileRow.FileName = utils.GetTileOverlayFileName(tiles[i].Name)
-		fileRow.DownLink = fmt.Sprintf("/download/%d?type=ove", tiles[i].Id)
+		fileRow.DownLink = fmt.Sprintf("/download/%d/ove", tiles[i].Id)
 		fileRow.FileType = "apstrādātā ar pārklājumu"
 		payload = append(payload, fileRow)
 	}
-	fmt.Println(sub)
 	ctx.HTML(
 		http.StatusOK,
 		"profile.html",
