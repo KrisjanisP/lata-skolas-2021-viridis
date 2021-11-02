@@ -1,0 +1,24 @@
+{{template "header.html"}} {{template "profile-navbar.html"}}
+<div class="container my-5">
+  <div class="bg-white p-4 shadow-lg py-5">
+    <h4 class="text-center">Jums pieejamās datnes</h4>
+    <div class="overflow-auto">
+    {{template "profile-table.html" .}}
+    </div>
+    <h4 class="text-center mt-5">Uzmanību!</h4>
+    <p class="w-50 m-auto" style="text-align: center">
+      Viena reģiona apstrādei nepieciešama aptuveni viena minūte.
+      Lai atjaunot sarakstu, uzspiediet <kbd>F5</kbd> vai <kbd>Ctrl</kbd>+<kbd>R</kbd>.
+    </p>
+    <hr>
+    <div class="bg-white col-12 col-lg-6 container p-4 d-flex flex-column justify-content-center text-center">
+      <img style="max-width:100px;" class="align-self-center m-4" src="{{.profile.picture}}" />
+      <div>Šobrīd esat pierakstījies kā</div>
+      <h4> {{ .profile.name }}</h4>
+      <a  onclick="logOut()" class="btn btn-warning btn-lg btn-block px-5 col-6 m-3 align-self-center" href="/logout"
+        >Iziet</a
+      >
+    </div>
+  </div>
+</div>
+<script src="dist/bundle.js"></script>

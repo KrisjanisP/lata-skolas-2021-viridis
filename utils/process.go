@@ -1,152 +1,95 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
 	"image/jpeg"
 	"io"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/KrisjanisP/viridis/models"
+	"github.com/KrisjanisP/viridis/database"
 	"golang.org/x/image/tiff"
 )
 
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
+func setFinishedState(rgb int, cir int, ndvi int, overlay int, finished *database.FinishedTile) {
+	finished.Rgb = rgb
+	finished.Cir = cir
+	finished.Ndv = ndvi
+	finished.Ove = overlay
 }
 
-func getTileRGBLocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_rgb.jpeg", tile.Name)
+func checkUpdateFinishedTileRecordRes(cnt int64, res error) {
+	if res != nil {
+		log.Panic(res)
+	}
+	if cnt == 0 {
+		fmt.Println("Something weird happened")
+	}
 }
-
-func getTileCIRLocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_cir.jpeg", tile.Name)
-}
-
-func getTileNDVILocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_ndv.jpeg", tile.Name)
-}
-
-func getTileOverlayLocation(tile models.Tile) string {
-	return fmt.Sprintf("./data/images/%s_ove.jpeg", tile.Name)
-}
-
-func downloadAndConvertTileRGB(tile models.Tile) {
-	// Get the data
-	resp, err := http.Get(tile.RgbURL)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Create the file
-	out, err := os.Create(getTileRGBLocation(tile))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-
-	ConvertTiffToJPEG(resp.Body, out)
-}
-
-func downloadAndConvertTileCIR(tile models.Tile) {
-	// Get the data
-	resp, err := http.Get(tile.CirURL)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Create the file
-	out, err := os.Create(getTileCIRLocation(tile))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-
-	ConvertTiffToJPEG(resp.Body, out)
-}
-
-func generateTileNDVI(tile models.Tile) {
-	rgbLoc := getTileRGBLocation(tile)
-	rgbFile, err := os.Open(rgbLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rgbFile.Close()
-	cirLoc := getTileCIRLocation(tile)
-	cirFile, err := os.Open(cirLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer cirFile.Close()
-	ndviLoc := getTileNDVILocation(tile)
-	ndviFile, err := os.Create(ndviLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ndviFile.Close()
-	GenerateNDVI(rgbFile, cirFile, ndviFile)
-}
-
-func generateTileOverlay(tile models.Tile) {
-	ndviLoc := getTileNDVILocation(tile)
-	ndviFile, err := os.Open(ndviLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ndviFile.Close()
-	rgbLoc := getTileRGBLocation(tile)
-	rgbFile, err := os.Open(rgbLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rgbFile.Close()
-	overlayLoc := getTileOverlayLocation(tile)
-	overlayFile, err := os.Create(overlayLoc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ndviFile.Close()
-	GenerateOverlay(ndviFile, rgbFile, overlayFile)
-}
-
-func ProcessTile(tile models.Tile) {
+func ProcessTile(tile database.Tile, tileURLs database.TileURLs, dbapi *database.DBAPI) {
 	l := log.New(os.Stdout, "[Worker] ", log.Ldate|log.Ltime)
-	rgbLoc := getTileRGBLocation(tile)
-	if !fileExists(rgbLoc) {
+
+	finished, err := dbapi.GetFinishedTilesRecord(tile.Id)
+
+	if err == sql.ErrNoRows {
+		finished.TileId = tile.Id
+		setFinishedState(0, 0, 0, 0, &finished)
+		dbapi.InsertFinishedTilesRecord(finished)
+	} else if err != nil {
+		log.Panic(err)
+	}
+
+	rgbLoc := GetTileRGBLocation(tile.Name)
+	if finished.Rgb == 0 || !FileExists(rgbLoc) {
+		setFinishedState(0, 0, 0, 0, &finished)
+		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 		l.Println("Downloading RGB for " + tile.Name)
-		downloadAndConvertTileRGB(tile)
+		downloadAndConvertTileRGB(tile.Name, tileURLs)
 		l.Println("Finished RGB for " + tile.Name)
+		setFinishedState(1, 0, 0, 0, &finished)
+		cnt, err = dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	cirLoc := getTileCIRLocation(tile)
-	if !fileExists(cirLoc) {
+	cirLoc := GetTileCIRLocation(tile.Name)
+	if finished.Cir == 0 || !FileExists(cirLoc) {
+		setFinishedState(1, 0, 0, 0, &finished)
+		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 		l.Println("Downloading CIR for " + tile.Name)
-		downloadAndConvertTileCIR(tile)
+		downloadAndConvertTileCIR(tile.Name, tileURLs)
 		l.Println("Finished CIR for " + tile.Name)
+		setFinishedState(1, 1, 0, 0, &finished)
+		cnt, err = dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	ndviLoc := getTileNDVILocation(tile)
-	if !fileExists(ndviLoc) {
+	ndviLoc := GetTileNDVILocation(tile.Name)
+	if finished.Ndv == 0 || !FileExists(ndviLoc) {
+		setFinishedState(1, 1, 0, 0, &finished)
+		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 		l.Println("Processing NDVI for " + tile.Name)
-		generateTileNDVI(tile)
+		generateTileNDVI(tile.Name)
 		l.Println("Finished NDVI for " + tile.Name)
+		setFinishedState(1, 1, 1, 0, &finished)
+		cnt, err = dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 
-	overlayLoc := getTileOverlayLocation(tile)
-	if !fileExists(overlayLoc) {
+	overlayLoc := GetTileOverlayLocation(tile.Name)
+	if finished.Ove == 0 || !FileExists(overlayLoc) {
+		setFinishedState(1, 1, 1, 0, &finished)
+		cnt, err := dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 		l.Println("Processing overlay for " + tile.Name)
-		generateTileOverlay(tile)
+		generateTileOverlay(tile.Name)
 		l.Println("Finished overlay for " + tile.Name)
+		setFinishedState(1, 1, 1, 1, &finished)
+		cnt, err = dbapi.UpdateFinishedTileRecord(finished)
+		checkUpdateFinishedTileRecordRes(cnt, err)
 	}
 }
 

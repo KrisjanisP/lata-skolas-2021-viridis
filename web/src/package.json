@@ -1,0 +1,32 @@
+{
+  "name": "viridis",
+  "version": "1.0.0",
+  "description": "LATA 2021. g. atvērto ģeotelpisko datu hakatona projekts, kas palīdz novērtēt augsnes auglību.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "dev": "webpack --mode=development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KrisjanisP/viridis.git"
+  },
+  "author": "Krišjānis Petručeņa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KrisjanisP/viridis/issues"
+  },
+  "homepage": "https://github.com/KrisjanisP/viridis#readme",
+  "devDependencies": {
+    "css-loader": "^6.4.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.59.1",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "js-cookie": "^3.0.1",
+    "ol": "^6.9.0"
+  }
+}

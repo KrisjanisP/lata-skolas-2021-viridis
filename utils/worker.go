@@ -1,28 +1,29 @@
 package utils
 
 import (
-	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/KrisjanisP/viridis/database"
 )
 
-func StartWorker(db *sql.DB) {
+func StartWorker(dbapi *database.DBAPI) {
+	fmt.Println("Hello from your dear worker.")
 	for {
 		l := log.New(os.Stdout, "[Worker] ", log.Ldate|log.Ltime)
 		l.Println("Checking for tasks.")
-		tasks, err := GetTaskQueueRecords(db)
+		tiles, tileURLsArr, err := dbapi.JoinPossesionRecordTileIdsNamesURLs()
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
-		for _, task := range tasks {
-			tile, err := GetTileUrlsRecord(db, task.TileName)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// process tile if necessary
-			ProcessTile(tile)
+		for i := 0; i < len(tiles); i++ {
+			//fmt.Println(tiles[i].Name)
+			//fmt.Println(tileURLsArr[i].RgbURL)
+			ProcessTile(tiles[i], tileURLsArr[i], dbapi)
 		}
+		fmt.Println()
 		time.Sleep(time.Second * 3)
 	}
 }
