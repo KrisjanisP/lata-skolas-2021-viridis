@@ -29,6 +29,7 @@ Pirmkārt, vēlams lai uz datora būtu:
 * Uzstādīta Go jeb golang programmēšanas valoda
 * Uzstādīta Python3 programmēšanas valoda
 * Uzstādīts sqlite3 CLI
+* Uzstādīts npm jeb node package manager
 * Pieejami vismaz papildus 8 GB brīvpiekļuves atmiņas
 
 Datubāzes sākotnējā izveide:
@@ -44,13 +45,25 @@ TKS93 kartes sadalījuma ģenerēšana:
 ```
 go run scripts/geotiff/gen-geotiff.go
 ```
+Pierakstīšanās sistēmas pieslēgšana:
+```
+jāizveido .env fails, kurā jānorāda sekojošās vērtības:
+AUTH0_DOMAIN
+AUTH0_CLIENT_ID
+AUTH0_CLIENT_SECRET
+AUTH0_CALLBACK_URL
+, kuras var iegūt piereģistrējoties https://auth0.com/
+```
 Kad visi iepriekšējie soļi izpildīti,
 projekta palaišana uz porta 8080:
 ```
 go run .
 ```
-
-
+Lai kaut ko kodēt mājaslapas javascript:
+```
+cd web/src && npm install
+npm run dev
+```
 ## Vērtēšanas kritēriji
 
 1. Atvērto ģeotelpisko datu inovatīvs pielietojums.
