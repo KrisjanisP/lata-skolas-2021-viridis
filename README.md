@@ -23,6 +23,34 @@ Atvērto ģeotelpisko datu hakatons skolēniem 2021
 
 > Hakatona dalībnieku sasniedzamais rezultāts ir radīt inovatīvu lietotni, kas risina sabiedrībai būtisku problēmu, izmantojot atvērtos ģeotelpiskos datus.
 
+## Lokālā projekta startēšana
+
+Pirmkārt, vēlams lai uz datora būtu:
+* Uzstādīta Go jeb golang programmēšanas valoda
+* Uzstādīta Python3 programmēšanas valoda
+* Uzstādīts sqlite3 CLI
+* Pieejami vismaz papildus 8 GB brīvpiekļuves atmiņas
+
+Datubāzes sākotnējā izveide:
+```
+go run scripts/database/gen-database.go
+```
+Datubāzes sākotnējā aizpilde:
+```
+go run scripts/tiles/fetch-tile-names.go
+go run scripts/links/fetch-tile-links.go
+```
+TKS93 kartes sadalījuma ģenerēšana:
+```
+go run scripts/geotiff/gen-geotiff.go
+```
+Kad visi iepriekšējie soļi izpildīti,
+projekta palaišana uz porta 8080:
+```
+go run .
+```
+
+
 ## Vērtēšanas kritēriji
 
 1. Atvērto ģeotelpisko datu inovatīvs pielietojums.
