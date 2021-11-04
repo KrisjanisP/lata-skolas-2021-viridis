@@ -37,7 +37,7 @@ func GetTileNDVILocation(tileName string) string {
 
 func GetTileOverlayLocation(tileName string) string {
 	tileFileName := GetTileOverlayFileName(tileName)
-	return fmt.Sprintf("./data/images/%s_ove.jpeg", tileFileName)
+	return fmt.Sprintf("./data/images/%s", tileFileName)
 }
 
 func GetImageDirLocation() string {

@@ -55,20 +55,16 @@ h6 {
   transition: color 0.1s ease-in-out;
 }
 
+.map-btn a {
+    color: #8dd62d !important;
+}
 
 .map-btn {
-  border-radius: 30px;
-  font-size: 48px;
-  border-color: #8dd62d;
-  transition: background-color 0.1s ease-in-out;
+  will-change: transform !important;
+  transition: transform 450ms !important;
 }
 
 .map-btn:hover {
-    background-color: #0C3356;
-    transition: background-color 0.1s ease-in-out;
-}
-  
-.map-btn a {
-    color: #8dd62d;
-    
+  transition: transform 450ms !important;
+  transform: translateY(-10px) !important;
 }

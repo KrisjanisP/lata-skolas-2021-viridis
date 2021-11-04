@@ -19,8 +19,9 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /viridis
+RUN go build .
+RUN chmod +x ./viridis
 
 EXPOSE 8080
 
-CMD ["/viridis"]
+CMD ["./viridis"]
